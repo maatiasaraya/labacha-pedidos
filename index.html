@@ -283,6 +283,86 @@
     .toast.success { background: var(--teal); }
     .toast.error   { background: var(--danger); }
 
+    /* ── LÍNEAS DE SABOR ── */
+    .linea-inputs {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .input-sabor {
+      flex: 2;
+    }
+    .input-cantidad {
+      flex: 1;
+      min-width: 0;
+    }
+    .btn-add {
+      width: 48px;
+      height: 52px;
+      flex-shrink: 0;
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity .2s;
+    }
+    .btn-add:active { opacity: .8; }
+
+    .lista-lineas {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .lista-lineas-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+    .lista-lineas ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .lista-lineas li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .linea-sabor-txt { flex: 1; }
+    .linea-kg {
+      color: var(--pink);
+      font-weight: 800;
+      margin-right: 12px;
+    }
+    .btn-del-linea {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 2px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-del-linea:active { color: var(--danger); }
+
     /* ── PRODUCCIÓN ── */
     .prod-card {
       background: var(--card);
@@ -351,23 +431,36 @@
     <div class="card">
       <p class="section-title">Nuevo pedido</p>
       <form id="formPedido" novalidate>
+
+        <!-- Cliente -->
         <div class="form-group">
           <label for="fCliente">Cliente</label>
-          <input id="fCliente" type="text" placeholder="Nombre del cliente" autocomplete="off" required />
+          <input id="fCliente" type="text" placeholder="Nombre del cliente" autocomplete="off" />
         </div>
+
+        <!-- Agregar línea de sabor -->
         <div class="form-group">
-          <label for="fSabor">Sabor</label>
-          <input id="fSabor" type="text" placeholder="Ej: Dulce de leche" autocomplete="off" required />
+          <label>Sabores</label>
+          <div class="linea-inputs">
+            <input id="fSabor" type="text" placeholder="Sabor" autocomplete="off" class="input-sabor" />
+            <input id="fCantidad" type="number" placeholder="kg" min="0.5" step="0.5" class="input-cantidad" />
+            <button type="button" id="btnAddLinea" class="btn-add">+</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="fCantidad">Cantidad (kg)</label>
-          <input id="fCantidad" type="number" placeholder="0" min="0.5" step="0.5" required />
+
+        <!-- Lista de sabores agregados -->
+        <div id="listaLineas" class="lista-lineas" style="display:none">
+          <p class="lista-lineas-label">Sabores agregados</p>
+          <ul id="ulLineas"></ul>
         </div>
-        <div class="form-group">
+
+        <!-- Fecha de entrega -->
+        <div class="form-group" style="margin-top:8px">
           <label for="fFecha">Fecha de entrega</label>
-          <input id="fFecha" type="date" required />
+          <input id="fFecha" type="date" />
         </div>
-        <button type="submit" class="btn-submit" id="btnAgregar">Agregar pedido</button>
+
+        <button type="submit" class="btn-submit" id="btnAgregar">Guardar pedido</button>
       </form>
     </div>
   </div>
@@ -695,36 +788,96 @@
   /* ── FORMULARIO ── */
   document.getElementById('fFecha').value = manana();
 
-  document.getElementById('formPedido').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const cliente  = document.getElementById('fCliente').value.trim();
+  // Estado interno: lista de líneas {sabor, cantidad}
+  let lineas = [];
+
+  function renderLineas() {
+    const lista = document.getElementById('listaLineas');
+    const ul    = document.getElementById('ulLineas');
+    if (lineas.length === 0) { lista.style.display = 'none'; return; }
+    lista.style.display = 'block';
+    ul.innerHTML = '';
+    lineas.forEach((l, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span class="linea-sabor-txt">${l.sabor}</span>
+        <span class="linea-kg">${l.cantidad} kg</span>
+        <button type="button" class="btn-del-linea" data-i="${i}" aria-label="Eliminar">×</button>
+      `;
+      ul.appendChild(li);
+    });
+    ul.querySelectorAll('.btn-del-linea').forEach(btn => {
+      btn.addEventListener('click', () => {
+        lineas.splice(Number(btn.dataset.i), 1);
+        renderLineas();
+      });
+    });
+  }
+
+  document.getElementById('btnAddLinea').addEventListener('click', () => {
     const sabor    = document.getElementById('fSabor').value.trim();
     const cantidad = document.getElementById('fCantidad').value.trim();
-    const fecha    = document.getElementById('fFecha').value;
+    if (!sabor)    { toast('Escribe el sabor', 'error'); return; }
+    if (!cantidad) { toast('Escribe la cantidad', 'error'); return; }
+    lineas.push({ sabor, cantidad });
+    renderLineas();
+    document.getElementById('fSabor').value    = '';
+    document.getElementById('fCantidad').value = '';
+    document.getElementById('fSabor').focus();
+  });
 
-    if (!cliente || !sabor || !cantidad || !fecha) {
-      toast('Completa todos los campos', 'error');
-      return;
-    }
+  // Permitir agregar línea con Enter en los campos de sabor/cantidad
+  ['fSabor', 'fCantidad'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('btnAddLinea').click();
+      }
+    });
+  });
+
+  document.getElementById('formPedido').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const cliente = document.getElementById('fCliente').value.trim();
+    const fecha   = document.getElementById('fFecha').value;
+
+    if (!cliente)         { toast('Escribe el nombre del cliente', 'error'); return; }
+    if (lineas.length === 0) { toast('Agrega al menos un sabor', 'error'); return; }
+    if (!fecha)           { toast('Selecciona la fecha de entrega', 'error'); return; }
 
     const btn = document.getElementById('btnAgregar');
     btn.disabled = true;
-    btn.textContent = 'Guardando…';
+    btn.textContent = `Guardando 0/${lineas.length}…`;
 
-    try {
-      await jsonp({ action: 'agregarPedido', cliente, sabor, cantidad, fechaEntrega: fecha });
-      toast('Pedido agregado con éxito ✓', 'success');
+    let guardados = 0;
+    const errores = [];
+
+    // Una llamada JSONP por cada línea de sabor
+    for (let i = 0; i < lineas.length; i++) {
+      const { sabor, cantidad } = lineas[i];
+      try {
+        await jsonp({ action: 'agregarPedido', cliente, sabor, cantidad, fechaEntrega: fecha });
+        guardados++;
+        btn.textContent = `Guardando ${guardados}/${lineas.length}…`;
+      } catch (err) {
+        errores.push(sabor);
+      }
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Guardar pedido';
+
+    if (errores.length === 0) {
+      toast(`${guardados} sabor${guardados !== 1 ? 'es' : ''} guardado${guardados !== 1 ? 's' : ''} ✓`, 'success');
       this.reset();
       document.getElementById('fFecha').value = manana();
+      lineas = [];
+      renderLineas();
       panels.pedidos = null;
       panels.produccion = null;
-      // Volver a pedidos
       document.querySelector('[data-tab="pedidos"]').click();
-    } catch (e) {
-      toast('Error al guardar: ' + e.message, 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Agregar pedido';
+    } else {
+      toast(`Error guardando: ${errores.join(', ')}`, 'error');
     }
   });
 
