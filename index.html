@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>La Bacha — Pedidos</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink:    #e91e8c;
+      --pink-lt: #fce4f3;
+      --teal:    #00bfa5;
+      --teal-lt: #e0f7f4;
+      --bg:      #f8f8f8;
+      --card:    #ffffff;
+      --text:    #1a1a2e;
+      --muted:   #7a7a9a;
+      --border:  #e8e8f0;
+      --danger:  #ff5252;
+      --radius:  16px;
+      --shadow:  0 2px 12px rgba(0,0,0,.08);
+      --tab-h:   64px;
+      --header-h:60px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--header-h);
+      background: var(--pink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(233,30,140,.3);
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.3px;
+    }
+    .header h1 span { opacity: .7; font-weight: 400; font-size: 14px; display: block; line-height: 1; }
+    .btn-refresh {
+      background: rgba(255,255,255,.2);
+      border: none;
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .btn-refresh:active { background: rgba(255,255,255,.35); }
+
+    /* ── MAIN ── */
+    .main {
+      position: fixed;
+      top: var(--header-h);
+      bottom: var(--tab-h);
+      left: 0; right: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-panel { display: none; padding: 16px; }
+    .tab-panel.active { display: block; }
+
+    /* ── TAB BAR ── */
+    .tabbar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--tab-h);
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 100;
+    }
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border: none;
+      background: none;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-btn .icon { font-size: 22px; line-height: 1; }
+    .tab-btn.active { color: var(--pink); }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
+    }
+
+    /* ── PEDIDO CARD ── */
+    .pedido-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--pink);
+    }
+    .pedido-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .pedido-cliente {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .pedido-fecha {
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-weight: 600;
+    }
+    .pedido-fecha.urgente { background: #fff3e0; color: #e65100; }
+    .pedido-fecha.vencido { background: #fce4e4; color: var(--danger); }
+    .pedido-detalle {
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .pedido-detalle strong { color: var(--pink); }
+    .btn-entregar {
+      width: 100%;
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-entregar:active { opacity: .85; transform: scale(.98); }
+    .btn-entregar:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty .ico { font-size: 56px; margin-bottom: 12px; }
+    .empty p { font-size: 16px; font-weight: 600; }
+    .empty small { font-size: 13px; }
+
+    /* ── LOADER ── */
+    .loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--pink);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FORMULARIO ── */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 17px;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--pink);
+      background: #fff;
+    }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a9a' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 44px; }
+    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      margin-top: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-submit:active { opacity: .85; transform: scale(.98); }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: calc(var(--tab-h) + 16px);
+      left: 16px; right: 16px;
+      background: var(--text);
+      color: #fff;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .25s, transform .25s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { background: var(--teal); }
+    .toast.error   { background: var(--danger); }
+
+    /* ── PRODUCCIÓN ── */
+    .prod-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .prod-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .prod-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .prod-item:first-child { padding-top: 0; }
+    .prod-sabor { font-size: 16px; font-weight: 700; }
+    .prod-kg {
+      background: var(--pink-lt);
+      color: var(--pink);
+      border-radius: 10px;
+      padding: 5px 12px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .prod-kg.ok {
+      background: var(--teal-lt);
+      color: var(--teal);
+    }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-block;
+      background: var(--pink);
+      color: #fff;
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <h1>🍦 La Bacha <span>Gestión de pedidos</span></h1>
+  <button class="btn-refresh" id="btnRefresh" title="Actualizar">↻</button>
+</header>
+
+<!-- CONTENIDO -->
+<main class="main">
+
+  <!-- PEDIDOS -->
+  <div id="panel-pedidos" class="tab-panel active">
+    <div id="pedidos-content">
+      <div class="loader"><div class="spinner"></div>Cargando pedidos…</div>
+    </div>
+  </div>
+
+  <!-- NUEVO PEDIDO -->
+  <div id="panel-nuevo" class="tab-panel">
+    <div class="card">
+      <p class="section-title">Nuevo pedido</p>
+      <form id="formPedido" novalidate>
+        <div class="form-group">
+          <label for="fCliente">Cliente</label>
+          <input id="fCliente" type="text" placeholder="Nombre del cliente" autocomplete="off" required />
+        </div>
+        <div class="form-group">
+          <label for="fSabor">Sabor</label>
+          <input id="fSabor" type="text" placeholder="Ej: Dulce de leche" autocomplete="off" required />
+        </div>
+        <div class="form-group">
+          <label for="fCantidad">Cantidad (kg)</label>
+          <input id="fCantidad" type="number" placeholder="0" min="0.5" step="0.5" required />
+        </div>
+        <div class="form-group">
+          <label for="fFecha">Fecha de entrega</label>
+          <input id="fFecha" type="date" required />
+        </div>
+        <button type="submit" class="btn-submit" id="btnAgregar">Agregar pedido</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PRODUCCIÓN -->
+  <div id="panel-produccion" class="tab-panel">
+    <div id="prod-content">
+      <div class="loader"><div class="spinner"></div>Cargando producción…</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- TAB BAR -->
+<nav class="tabbar">
+  <button class="tab-btn active" data-tab="pedidos">
+    <span class="icon">📋</span>
+    Pedidos
+  </button>
+  <button class="tab-btn" data-tab="nuevo">
+    <span class="icon">➕</span>
+    Nuevo
+  </button>
+  <button class="tab-btn" data-tab="produccion">
+    <span class="icon">🏭</span>
+    Producción
+  </button>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = 'https://script.google.com/a/macros/labacha.cl/s/AKfycbywhhPjdosfbsoUPNtl5wO08SCPyv-Xktdf1UFEjtAbD8xR2NtSwwZYXPOKuxU59Vw/exec';
+
+  /* ── JSONP ── */
+  let _cbCounter = 0;
+  function jsonp(params) {
+    return new Promise((resolve, reject) => {
+      const cbName = '__lbcb' + (++_cbCounter);
+      const script = document.createElement('script');
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error('Timeout'));
+      }, 12000);
+
+      function cleanup() {
+        clearTimeout(timeout);
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[cbName] = (data) => { cleanup(); resolve(data); };
+
+      const qs = Object.entries({ ...params, callback: cbName })
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+
+      script.onerror = () => { cleanup(); reject(new Error('Error de red')); };
+      script.src = API + '?' + qs;
+      document.head.appendChild(script);
+    });
+  }
+
+  /* ── TOAST ── */
+  let _toastTimer;
+  function toast(msg, type = '') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show ' + type;
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  /* ── TABS ── */
+  const panels = { pedidos: null, nuevo: null, produccion: null };
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.getElementById('panel-' + tab).classList.add('active');
+      if (tab === 'pedidos' && !panels.pedidos) loadPedidos();
+      if (tab === 'produccion' && !panels.produccion) loadProduccion();
+    });
+  });
+
+  /* ── FECHA UTILS ── */
+  function hoy() {
+    const d = new Date();
+    return d.toISOString().slice(0, 10);
+  }
+  function manana() {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+  function formatFecha(str) {
+    if (!str) return '';
+    const [y, m, d] = String(str).split('-');
+    if (!d) return str;
+    return `${d}/${m}/${y}`;
+  }
+  function estadoFecha(str) {
+    if (!str) return '';
+    const hoyStr = hoy();
+    const manaStr = manana();
+    if (str < hoyStr) return 'vencido';
+    if (str === hoyStr || str === manaStr) return 'urgente';
+    return '';
+  }
+
+  /* ── PEDIDOS ── */
+  async function loadPedidos() {
+    const el = document.getElementById('pedidos-content');
+    el.innerHTML = '<div class="loader"><div class="spinner"></div>Cargando pedidos…</div>';
+    panels.pedidos = null;
+
+    try {
+      const data = await jsonp({ action: 'getPedidos' });
+      panels.pedidos = data;
+      renderPedidos(data);
+    } catch (e) {
+      el.innerHTML = `<div class="empty"><div class="ico">⚠️</div><p>No se pudieron cargar los pedidos</p><small>${e.message}</small></div>`;
+    }
+  }
+
+  function renderPedidos(data) {
+    const el = document.getElementById('pedidos-content');
+    // Actualizar badge en tab
+    const tabBtn = document.querySelector('[data-tab="pedidos"]');
+    let oldBadge = tabBtn.querySelector('.badge');
+    if (oldBadge) oldBadge.remove();
+
+    const pedidos = Array.isArray(data) ? data : (data.pedidos || []);
+    const pendientes = pedidos.filter(p => !p.entregado && p.estado !== 'entregado');
+
+    if (pendientes.length > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = pendientes.length;
+      tabBtn.appendChild(badge);
+    }
+
+    if (pendientes.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="ico">✅</div><p>¡Todo entregado!</p><small>No hay pedidos pendientes.</small></div>`;
+      return;
+    }
+
+    // Ordenar por fecha
+    pendientes.sort((a, b) => {
+      const fa = a.fechaEntrega || a.fecha_entrega || '';
+      const fb = b.fechaEntrega || b.fecha_entrega || '';
+      return fa.localeCompare(fb);
+    });
+
+    el.innerHTML = `<p class="section-title">${pendientes.length} pedido${pendientes.length !== 1 ? 's' : ''} pendiente${pendientes.length !== 1 ? 's' : ''}</p>`;
+    pendientes.forEach(p => {
+      const id = p.id || p.ID || p.Id || '';
+      const cliente = p.cliente || p.Cliente || '—';
+      const sabor = p.sabor || p.Sabor || '—';
+      const cantidad = p.cantidad || p.Cantidad || '';
+      const fecha = p.fechaEntrega || p.fecha_entrega || p.Fecha || '';
+      const estado = estadoFecha(fecha);
+
+      const card = document.createElement('div');
+      card.className = 'pedido-card';
+      card.innerHTML = `
+        <div class="pedido-header">
+          <div class="pedido-cliente">${cliente}</div>
+          <div class="pedido-fecha ${estado}">${formatFecha(fecha) || 'Sin fecha'}</div>
+        </div>
+        <div class="pedido-detalle">
+          <strong>${sabor}</strong>${cantidad ? ` · ${cantidad} kg` : ''}
+        </div>
+        <button class="btn-entregar" data-id="${id}">✓ Marcar como entregado</button>
+      `;
+      el.appendChild(card);
+
+      card.querySelector('.btn-entregar').addEventListener('click', function () {
+        entregarPedido(id, this);
+      });
+    });
+  }
+
+  async function entregarPedido(id, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Entregando…';
+    try {
+      await jsonp({ action: 'entregarPedido', id });
+      panels.pedidos = null;
+      panels.produccion = null;
+      toast('Pedido marcado como entregado ✓', 'success');
+      await loadPedidos();
+      // Refrescar producción si está visible
+      if (document.getElementById('panel-produccion').classList.contains('active')) {
+        loadProduccion();
+      }
+    } catch (e) {
+      toast('Error al entregar: ' + e.message, 'error');
+      btn.disabled = false;
+      btn.textContent = '✓ Marcar como entregado';
+    }
+  }
+
+  /* ── PRODUCCIÓN ── */
+  async function loadProduccion() {
+    const el = document.getElementById('prod-content');
+    el.innerHTML = '<div class="loader"><div class="spinner"></div>Cargando producción…</div>';
+    panels.produccion = null;
+
+    try {
+      const data = await jsonp({ action: 'getInventario' });
+      panels.produccion = data;
+      renderProduccion(data);
+    } catch (e) {
+      el.innerHTML = `<div class="empty"><div class="ico">⚠️</div><p>No se pudo cargar</p><small>${e.message}</small></div>`;
+    }
+  }
+
+  function renderProduccion(data) {
+    const el = document.getElementById('prod-content');
+    const items = Array.isArray(data) ? data : (data.inventario || data.produccion || []);
+
+    if (items.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="ico">🎉</div><p>Nada por producir</p><small>Todos los sabores están al día.</small></div>`;
+      return;
+    }
+
+    const necesitan = items.filter(i => {
+      const falta = parseFloat(i.falta || i.pendiente || i.necesario || 0);
+      return falta > 0;
+    });
+    const ok = items.filter(i => {
+      const falta = parseFloat(i.falta || i.pendiente || i.necesario || 0);
+      return falta <= 0;
+    });
+
+    let html = '';
+
+    if (necesitan.length > 0) {
+      html += `<p class="section-title">Por producir (${necesitan.length})</p><div class="prod-card">`;
+      necesitan
+        .sort((a, b) => {
+          const fa = parseFloat(b.falta || b.pendiente || b.necesario || 0);
+          const fb = parseFloat(a.falta || a.pendiente || a.necesario || 0);
+          return fa - fb;
+        })
+        .forEach(i => {
+          const sabor = i.sabor || i.Sabor || i.nombre || '—';
+          const falta = parseFloat(i.falta || i.pendiente || i.necesario || 0);
+          html += `<div class="prod-item">
+            <span class="prod-sabor">${sabor}</span>
+            <span class="prod-kg">${falta} kg</span>
+          </div>`;
+        });
+      html += '</div>';
+    }
+
+    if (ok.length > 0) {
+      html += `<p class="section-title">Completos (${ok.length})</p><div class="prod-card">`;
+      ok.forEach(i => {
+        const sabor = i.sabor || i.Sabor || i.nombre || '—';
+        html += `<div class="prod-item">
+          <span class="prod-sabor">${sabor}</span>
+          <span class="prod-kg ok">✓ OK</span>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    if (!html) {
+      el.innerHTML = `<div class="empty"><div class="ico">🎉</div><p>Nada por producir</p></div>`;
+      return;
+    }
+
+    el.innerHTML = html;
+  }
+
+  /* ── FORMULARIO ── */
+  document.getElementById('fFecha').value = manana();
+
+  document.getElementById('formPedido').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const cliente  = document.getElementById('fCliente').value.trim();
+    const sabor    = document.getElementById('fSabor').value.trim();
+    const cantidad = document.getElementById('fCantidad').value.trim();
+    const fecha    = document.getElementById('fFecha').value;
+
+    if (!cliente || !sabor || !cantidad || !fecha) {
+      toast('Completa todos los campos', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btnAgregar');
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
+
+    try {
+      await jsonp({ action: 'agregarPedido', cliente, sabor, cantidad, fechaEntrega: fecha });
+      toast('Pedido agregado con éxito ✓', 'success');
+      this.reset();
+      document.getElementById('fFecha').value = manana();
+      panels.pedidos = null;
+      panels.produccion = null;
+      // Volver a pedidos
+      document.querySelector('[data-tab="pedidos"]').click();
+    } catch (e) {
+      toast('Error al guardar: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Agregar pedido';
+    }
+  });
+
+  /* ── REFRESH ── */
+  document.getElementById('btnRefresh').addEventListener('click', () => {
+    panels.pedidos = null;
+    panels.produccion = null;
+    const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+    if (activeTab === 'pedidos') loadPedidos();
+    else if (activeTab === 'produccion') loadProduccion();
+  });
+
+  /* ── INIT ── */
+  loadPedidos();
+</script>
+</body>
+</html>
