@@ -477,18 +477,51 @@
     d.setDate(d.getDate() + 1);
     return d.toISOString().slice(0, 10);
   }
-  function formatFecha(str) {
+
+  // Convierte cualquier formato de fecha a ISO (YYYY-MM-DD).
+  // Devuelve '' si el valor es vacío, inválido o una fecha epoch (< 2000).
+  function normalizeFecha(val) {
+    if (!val && val !== 0) return '';
+    const str = String(val).trim();
     if (!str) return '';
-    const [y, m, d] = String(str).split('-');
-    if (!d) return str;
+
+    // ISO: YYYY-MM-DD (Apps Script con getISOString o formato estándar)
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+      const iso = str.slice(0, 10);
+      return iso >= '2000-01-01' ? iso : '';
+    }
+
+    // DD/MM/YYYY (formato que devuelve Apps Script al serializar fechas del sheet)
+    const ddmm = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (ddmm) {
+      const iso = `${ddmm[3]}-${ddmm[2].padStart(2, '0')}-${ddmm[1].padStart(2, '0')}`;
+      return iso >= '2000-01-01' ? iso : '';
+    }
+
+    // Timestamp numérico en ms
+    if (/^\d+$/.test(str)) {
+      const d = new Date(Number(str));
+      if (isNaN(d.getTime()) || d.getFullYear() < 2000) return '';
+      return d.toISOString().slice(0, 10);
+    }
+
+    return '';
+  }
+
+  function formatFecha(val) {
+    const iso = normalizeFecha(val);
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-');
     return `${d}/${m}/${y}`;
   }
-  function estadoFecha(str) {
-    if (!str) return '';
+
+  function estadoFecha(val) {
+    const iso = normalizeFecha(val);
+    if (!iso) return '';
     const hoyStr = hoy();
     const manaStr = manana();
-    if (str < hoyStr) return 'vencido';
-    if (str === hoyStr || str === manaStr) return 'urgente';
+    if (iso < hoyStr) return 'vencido';
+    if (iso === hoyStr || iso === manaStr) return 'urgente';
     return '';
   }
 
@@ -529,21 +562,21 @@
       return;
     }
 
-    // Ordenar por fecha
+    // Ordenar por fecha de entrega (normalizadas a ISO para comparación correcta)
     pendientes.sort((a, b) => {
-      const fa = a.fechaEntrega || a.fecha_entrega || '';
-      const fb = b.fechaEntrega || b.fecha_entrega || '';
+      const fa = normalizeFecha(a.fechaEntrega) || '';
+      const fb = normalizeFecha(b.fechaEntrega) || '';
       return fa.localeCompare(fb);
     });
 
     el.innerHTML = `<p class="section-title">${pendientes.length} pedido${pendientes.length !== 1 ? 's' : ''} pendiente${pendientes.length !== 1 ? 's' : ''}</p>`;
     pendientes.forEach(p => {
-      const id = p.id || p.ID || p.Id || '';
-      const cliente = p.cliente || p.Cliente || '—';
-      const sabor = p.sabor || p.Sabor || '—';
-      const cantidad = p.cantidad || p.Cantidad || '';
-      const fecha = p.fechaEntrega || p.fecha_entrega || p.Fecha || '';
-      const estado = estadoFecha(fecha);
+      const id       = p.id       || '';
+      const cliente  = p.cliente  || '—';
+      const sabor    = p.sabor    || '—';
+      const cantidad = p.cantidad || '';
+      const fecha    = p.fechaEntrega || '';  // campo exacto que devuelve la API
+      const estado   = estadoFecha(fecha);
 
       const card = document.createElement('div');
       card.className = 'pedido-card';
