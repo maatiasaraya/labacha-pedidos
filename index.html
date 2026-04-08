@@ -4,25 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>La Bacha</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0d0d14;
-      --surface:   #13131e;
-      --card:      #1b1b28;
-      --card2:     #22223a;
-      --border:    #28283c;
-      --pink:      #f0116a;
-      --pink-dim:  rgba(240,17,106,.13);
-      --teal:      #00c9a7;
-      --teal-dim:  rgba(0,201,167,.13);
-      --text:      #eeeef5;
-      --muted:     #55558a;
-      --danger:    #ff4060;
-      --warn:      #ffab40;
+      --bg:        #f2f2f7;
+      --surface:   #ffffff;
+      --card:      #ffffff;
+      --border:    #d1d1d6;
+      --blue:      #0071e3;
+      --blue-dim:  rgba(0,113,227,.1);
+      --green:     #34c759;
+      --green-dim: rgba(52,199,89,.1);
+      --text:      #1d1d1f;
+      --muted:     #86868b;
+      --danger:    #ff3b30;
+      --warn:      #ff9500;
       --radius:    16px;
       --tab-h:     66px;
       --hdr-h:     58px;
@@ -48,20 +47,18 @@
     .logo strong {
       display: block;
       font-size: 20px; font-weight: 900; letter-spacing: -.3px;
-      background: linear-gradient(90deg, var(--pink) 0%, #ff8fc8 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--blue);
     }
     .logo span { font-size: 11px; color: var(--muted); font-weight: 500; }
     .btn-refresh {
       width: 40px; height: 40px; border-radius: 50%;
-      background: var(--card); border: 1px solid var(--border);
+      background: var(--bg); border: 1px solid var(--border);
       color: var(--muted); font-size: 19px;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       transition: color .15s, border-color .15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn-refresh:active { color: var(--pink); border-color: var(--pink); }
+    .btn-refresh:active { color: var(--blue); border-color: var(--blue); }
 
     /* ── MAIN ── */
     .main {
@@ -91,16 +88,16 @@
       transition: color .15s;
     }
     .tab-btn .ico { font-size: 22px; line-height: 1; }
-    .tab-btn.active { color: var(--pink); }
+    .tab-btn.active { color: var(--blue); }
     .tab-btn.active::after {
       content: '';
       position: absolute; top: 0; left: 28%; right: 28%;
-      height: 2px; background: var(--pink);
+      height: 2px; background: var(--blue);
       border-radius: 0 0 4px 4px;
     }
     .tab-badge {
       position: absolute; top: 7px; right: calc(50% - 24px);
-      background: var(--pink); color: #fff;
+      background: var(--blue); color: #fff;
       border-radius: 50%; width: 17px; height: 17px;
       font-size: 10px; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
@@ -115,13 +112,11 @@
     }
     .spinner {
       width: 34px; height: 34px;
-      border: 3px solid var(--border); border-top-color: var(--pink);
+      border: 3px solid var(--border); border-top-color: var(--blue);
       border-radius: 50%; animation: spin .7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .empty {
-      text-align: center; padding: 72px 20px; color: var(--muted);
-    }
+    .empty { text-align: center; padding: 72px 20px; color: var(--muted); }
     .empty .ico { font-size: 54px; margin-bottom: 12px; }
     .empty p { font-size: 17px; font-weight: 800; }
     .empty small { font-size: 13px; margin-top: 4px; display: block; }
@@ -133,21 +128,32 @@
       margin-bottom: 10px;
     }
 
-    /* ── TOAST ── */
+    /* ── TOAST con UNDO ── */
     .toast {
       position: fixed;
       bottom: calc(var(--tab-h) + 14px); left: 14px; right: 14px;
-      background: var(--card2); color: var(--text);
-      border: 1px solid var(--border); border-radius: 14px;
-      padding: 13px 18px; font-size: 14px; font-weight: 700;
-      text-align: center; z-index: 300;
+      background: #1d1d1f; color: #fff;
+      border-radius: 14px;
+      padding: 13px 16px; font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; gap: 10px;
+      z-index: 300;
       opacity: 0; transform: translateY(8px);
       transition: opacity .25s, transform .25s;
       pointer-events: none;
     }
-    .toast.show { opacity: 1; transform: translateY(0); }
-    .toast.ok  { background: var(--teal); color: #001a14; border-color: var(--teal); }
-    .toast.err { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .toast.ok  { background: var(--green); color: #fff; }
+    .toast.err { background: var(--danger); color: #fff; }
+    .toast-msg { flex: 1; }
+    .toast-undo {
+      flex-shrink: 0;
+      background: rgba(255,255,255,.2);
+      border: none; border-radius: 8px;
+      color: #fff; font-size: 13px; font-weight: 900;
+      padding: 6px 12px; cursor: pointer; font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .toast-undo:active { background: rgba(255,255,255,.35); }
 
     /* ══════════════════════════════════════
        PEDIDOS
@@ -156,30 +162,31 @@
 
     .cliente-hdr {
       display: flex; align-items: center; gap: 10px;
-      padding: 13px 16px;
+      padding: 12px 16px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius) var(--radius) 0 0;
     }
     .cliente-nombre { flex: 1; font-size: 17px; font-weight: 900; }
     .cliente-pill {
-      font-size: 11px; font-weight: 800; color: var(--pink);
-      background: var(--pink-dim); border-radius: 20px; padding: 3px 10px;
+      font-size: 11px; font-weight: 800; color: var(--blue);
+      background: var(--blue-dim); border-radius: 20px; padding: 3px 10px;
     }
-    .pedido-fecha-row {
-      background: var(--surface);
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      padding: 6px 16px;
-      font-size: 11px; font-weight: 800; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .6px;
+    .btn-entregar-todo {
+      font-size: 12px; font-weight: 800;
+      color: var(--green); background: var(--green-dim);
+      border: none; border-radius: 8px; padding: 6px 12px;
+      cursor: pointer; font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity .15s;
     }
+    .btn-entregar-todo:active { opacity: .7; }
+
     .pedido-row {
       display: flex; align-items: center; gap: 10px;
       padding: 13px 16px;
       background: var(--card);
-      border: 1px solid var(--border);
-      border-top: none;
+      border: 1px solid var(--border); border-top: none;
     }
     .pedido-row:last-child { border-radius: 0 0 var(--radius) var(--radius); }
     .pedido-info { flex: 1; min-width: 0; }
@@ -191,21 +198,21 @@
     .fecha-badge {
       font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px;
     }
-    .fecha-badge.ok      { background: var(--teal-dim); color: var(--teal); }
-    .fecha-badge.urgente { background: rgba(255,171,64,.15); color: var(--warn); }
-    .fecha-badge.vencido { background: rgba(255,64,96,.15); color: var(--danger); }
+    .fecha-badge.ok      { background: var(--green-dim); color: var(--green); }
+    .fecha-badge.urgente { background: rgba(255,149,0,.12); color: var(--warn); }
+    .fecha-badge.vencido { background: rgba(255,59,48,.1); color: var(--danger); }
 
     .row-actions { display: flex; gap: 8px; flex-shrink: 0; }
     .btn-icon {
       width: 42px; height: 42px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--card2);
+      border: 1px solid var(--border); background: var(--bg);
       color: var(--muted); font-size: 17px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: all .15s; -webkit-tap-highlight-color: transparent;
     }
     .btn-icon:active { transform: scale(.93); }
-    .btn-icon.del:active { background: rgba(255,64,96,.2); color: var(--danger); border-color: var(--danger); }
-    .btn-icon.chk:active { background: var(--teal-dim); color: var(--teal); border-color: var(--teal); }
+    .btn-icon.del:active { background: rgba(255,59,48,.1); color: var(--danger); border-color: var(--danger); }
+    .btn-icon.chk:active { background: var(--green-dim); color: var(--green); border-color: var(--green); }
     .btn-icon:disabled { opacity: .35; pointer-events: none; }
 
     /* ══════════════════════════════════════
@@ -223,25 +230,31 @@
     }
     input[type="text"],
     input[type="number"],
-    input[type="date"] {
+    input[type="date"],
+    select {
       width: 100%;
-      background: var(--surface); border: 1.5px solid var(--border);
+      background: var(--bg); border: 1.5px solid var(--border);
       border-radius: 12px; padding: 14px 16px;
       font-size: 16px; color: var(--text); font-family: inherit;
       outline: none; transition: border-color .2s;
-      -webkit-appearance: none; color-scheme: dark;
+      -webkit-appearance: none; appearance: none;
     }
-    input:focus { border-color: var(--pink); }
+    input:focus, select:focus { border-color: var(--blue); }
     input::placeholder { color: var(--muted); }
     input[type="number"] { -moz-appearance: textfield; }
     input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2386868b' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 16px center;
+      padding-right: 44px; cursor: pointer;
+    }
 
     .sabor-row { display: flex; gap: 8px; align-items: stretch; }
     .sabor-row .inp-sabor { flex: 3; }
     .sabor-row .inp-cant  { flex: 1.2; min-width: 0; }
     .btn-plus {
       width: 52px; flex-shrink: 0;
-      background: var(--pink); color: #fff;
+      background: var(--blue); color: #fff;
       border: none; border-radius: 12px;
       font-size: 28px; font-weight: 300; line-height: 1;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -250,7 +263,7 @@
     .btn-plus:active { opacity: .75; }
 
     .lineas-box {
-      background: var(--surface); border: 1.5px solid var(--border);
+      background: var(--bg); border: 1.5px solid var(--border);
       border-radius: 12px; overflow: hidden; margin-bottom: 16px;
     }
     .linea-item {
@@ -259,7 +272,7 @@
     }
     .linea-item:last-child { border-bottom: none; }
     .linea-sabor { flex: 1; font-size: 15px; font-weight: 600; }
-    .linea-cant  { font-size: 15px; font-weight: 900; color: var(--pink); }
+    .linea-cant  { font-size: 15px; font-weight: 900; color: var(--blue); }
     .linea-unit  { font-size: 11px; color: var(--muted); font-weight: 600; }
     .btn-del-linea {
       background: none; border: none; color: var(--muted);
@@ -269,7 +282,7 @@
     .btn-del-linea:active { color: var(--danger); }
 
     .btn-submit {
-      width: 100%; background: var(--pink); color: #fff;
+      width: 100%; background: var(--blue); color: #fff;
       border: none; border-radius: 14px; padding: 16px;
       font-size: 16px; font-weight: 900; letter-spacing: .2px;
       cursor: pointer; transition: opacity .15s, transform .1s;
@@ -291,7 +304,7 @@
       transition: border-color .2s, color .2s;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn-sync:hover  { border-color: var(--pink); color: var(--pink); }
+    .btn-sync:hover  { border-color: var(--blue); color: var(--blue); }
     .btn-sync:active { opacity: .8; }
     .btn-sync:disabled { opacity: .45; pointer-events: none; }
     .spin-ico { display: inline-block; animation: spin .7s linear infinite; }
@@ -313,20 +326,19 @@
     .inv-updated    { font-size: 10px; color: var(--muted); margin-top: 2px; }
     .inv-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
     .inv-cant {
-      font-size: 20px; font-weight: 900; color: var(--pink);
+      font-size: 20px; font-weight: 900; color: var(--blue);
       min-width: 36px; text-align: right; cursor: pointer;
       border-radius: 6px; padding: 2px 4px;
       transition: background .15s;
     }
-    .inv-cant:active { background: var(--pink-dim); }
+    .inv-cant:active { background: var(--blue-dim); }
     .inv-unit { font-size: 12px; color: var(--muted); font-weight: 600; }
     .inv-edit-input {
       width: 72px; padding: 6px 10px;
-      background: var(--surface); border: 1.5px solid var(--pink);
+      background: var(--bg); border: 1.5px solid var(--blue);
       border-radius: 8px; font-size: 20px; font-weight: 900;
-      color: var(--pink); text-align: right; font-family: inherit;
+      color: var(--blue); text-align: right; font-family: inherit;
       outline: none; -webkit-appearance: none; -moz-appearance: textfield;
-      color-scheme: dark;
     }
     .inv-edit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
   </style>
@@ -359,7 +371,17 @@
 
         <div class="form-group">
           <label for="fCliente">Cliente</label>
-          <input id="fCliente" type="text" placeholder="Nombre del cliente" autocomplete="off" />
+          <select id="fCliente">
+            <option value="">— Selecciona cliente —</option>
+            <option>Tololo Beef</option>
+            <option>Tololo Beach</option>
+            <option>Cafetería Beach</option>
+            <option>Cafetería Cerro</option>
+            <option>Mi Café</option>
+            <option value="__otro__">Otro…</option>
+          </select>
+          <input id="fClienteOtro" type="text" placeholder="Nombre del cliente"
+                 autocomplete="off" style="display:none; margin-top:8px" />
         </div>
 
         <div class="form-group">
@@ -407,7 +429,7 @@
   </button>
 </nav>
 
-<div id="toast" class="toast"></div>
+<div id="toast" class="toast"><span class="toast-msg"></span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -417,14 +439,46 @@
     'sb_publishable_9iC-oZ5UVluTNgkTREqqCg_98cbxa3f'
   );
 
-  /* ── TOAST ── */
-  let _tt;
+  /* ══════════════════════════════════════
+     TOAST / UNDO
+  ════════════════════════════════════════ */
+  let _undoPending = null;
+
+  // Toast simple (ok / err)
   function toast(msg, type = '') {
+    _cancelUndo();
     const el = document.getElementById('toast');
-    el.textContent = msg;
+    el.innerHTML = `<span class="toast-msg">${msg}</span>`;
     el.className = 'toast show ' + type;
-    clearTimeout(_tt);
-    _tt = setTimeout(() => el.classList.remove('show'), 3200);
+    setTimeout(() => {
+      if (!el.classList.contains('undo-active')) el.classList.remove('show');
+    }, 3200);
+  }
+
+  // Toast con botón Deshacer — ejecuta commitFn tras 5 s si no se cancela
+  function showUndo(msg, commitFn) {
+    _cancelUndo();
+    const el = document.getElementById('toast');
+    el.innerHTML = `<span class="toast-msg">${msg}</span><button class="toast-undo">Deshacer</button>`;
+    el.className = 'toast show undo-active';
+
+    el.querySelector('.toast-undo').addEventListener('click', () => {
+      _cancelUndo();
+      el.classList.remove('show');
+      // Recargar para restaurar el estado anterior
+      _loaded.pedidos = false;
+      loadPedidos(true);
+    });
+
+    _undoPending = setTimeout(async () => {
+      _undoPending = null;
+      el.classList.remove('show');
+      await commitFn();
+    }, 5000);
+  }
+
+  function _cancelUndo() {
+    if (_undoPending) { clearTimeout(_undoPending); _undoPending = null; }
   }
 
   /* ── FECHA UTILS ── */
@@ -472,7 +526,23 @@
     });
   });
 
-  /* ════════════════════════════════════════
+  /* ══════════════════════════════════════
+     HISTORIAL
+  ════════════════════════════════════════ */
+  async function saveHistorial(items) {
+    const now = new Date().toISOString();
+    const rows = items.map(p => ({
+      cliente:         p.cliente,
+      sabor:           p.sabor,
+      cantidad:        p.cantidad,
+      fecha_entrega:   p.fecha_entrega,
+      fecha_entregado: now,
+    }));
+    const { error } = await sb.from('historial').insert(rows);
+    if (error) console.warn('historial insert error:', error.message);
+  }
+
+  /* ══════════════════════════════════════
      PEDIDOS
   ════════════════════════════════════════ */
   async function loadPedidos(silent = false) {
@@ -513,7 +583,7 @@
       return;
     }
 
-    // Agrupar por cliente manteniendo orden por fecha
+    // Agrupar por cliente
     const grupos = new Map();
     pedidos.forEach(p => {
       if (!grupos.has(p.cliente)) grupos.set(p.cliente, []);
@@ -526,16 +596,33 @@
       const g = document.createElement('div');
       g.className = 'cliente-group';
 
-      // Cabecera del cliente
+      // ── Cabecera del cliente con "Entregar todo"
       const hdr = document.createElement('div');
       hdr.className = 'cliente-hdr';
       hdr.innerHTML = `
         <span class="cliente-nombre">${cliente}</span>
         <span class="cliente-pill">${items.length} sabor${items.length !== 1 ? 'es' : ''}</span>
+        <button class="btn-entregar-todo">Entregar todo</button>
       `;
+      hdr.querySelector('.btn-entregar-todo').addEventListener('click', () => {
+        // Quitar el grupo del DOM optimísticamente
+        g.remove();
+        actualizarBadge(pedidos.length - items.length);
+        showUndo(
+          `${cliente}: ${items.length} sabor${items.length !== 1 ? 'es' : ''} entregados`,
+          async () => {
+            const ids = items.map(i => i.id);
+            const { error } = await sb.from('pedidos').update({ estado: 'entregado' }).in('id', ids);
+            if (error) { toast('Error al entregar', 'err'); return; }
+            await saveHistorial(items);
+            _loaded.pedidos = false;
+            loadPedidos(true);
+          }
+        );
+      });
       g.appendChild(hdr);
 
-      // Filas de sabores
+      // ── Filas de sabores
       items.forEach(p => {
         const estado = fechaEstado(p.fecha_entrega);
         const row = document.createElement('div');
@@ -553,22 +640,32 @@
             <button class="btn-icon chk" aria-label="Entregar">✓</button>
           </div>
         `;
-        row.querySelector('.btn-icon.del').addEventListener('click', async function () {
-          this.disabled = true;
-          const { error } = await sb.from('pedidos').delete().eq('id', p.id);
-          if (error) { toast('Error al eliminar', 'err'); this.disabled = false; return; }
-          toast('Pedido eliminado');
-          _loaded.pedidos = false;
-          loadPedidos(true);
+
+        // Eliminar con undo
+        row.querySelector('.btn-icon.del').addEventListener('click', () => {
+          row.remove();
+          actualizarBadge(pedidos.length - 1);
+          showUndo('Pedido eliminado', async () => {
+            const { error } = await sb.from('pedidos').delete().eq('id', p.id);
+            if (error) toast('Error al eliminar', 'err');
+            _loaded.pedidos = false;
+            loadPedidos(true);
+          });
         });
-        row.querySelector('.btn-icon.chk').addEventListener('click', async function () {
-          this.disabled = true;
-          const { error } = await sb.from('pedidos').update({ estado: 'entregado' }).eq('id', p.id);
-          if (error) { toast('Error al actualizar', 'err'); this.disabled = false; return; }
-          toast('Marcado como entregado ✓', 'ok');
-          _loaded.pedidos = false;
-          loadPedidos(true);
+
+        // Entregar con undo + historial
+        row.querySelector('.btn-icon.chk').addEventListener('click', () => {
+          row.remove();
+          actualizarBadge(pedidos.length - 1);
+          showUndo('Marcado como entregado', async () => {
+            const { error } = await sb.from('pedidos').update({ estado: 'entregado' }).eq('id', p.id);
+            if (error) { toast('Error al actualizar', 'err'); return; }
+            await saveHistorial([p]);
+            _loaded.pedidos = false;
+            loadPedidos(true);
+          });
         });
+
         g.appendChild(row);
       });
 
@@ -576,10 +673,35 @@
     });
   }
 
-  /* ════════════════════════════════════════
+  function actualizarBadge(n) {
+    const tabBtn = document.querySelector('[data-tab="pedidos"]');
+    const old = tabBtn.querySelector('.tab-badge');
+    if (old) old.remove();
+    if (n > 0) {
+      const b = document.createElement('span');
+      b.className = 'tab-badge';
+      b.textContent = n;
+      tabBtn.appendChild(b);
+    }
+  }
+
+  /* ══════════════════════════════════════
      NUEVO PEDIDO
   ════════════════════════════════════════ */
   document.getElementById('fFecha').value = mananaISO();
+
+  // Selector de cliente con opción "Otro..."
+  document.getElementById('fCliente').addEventListener('change', function () {
+    const otro = document.getElementById('fClienteOtro');
+    otro.style.display = this.value === '__otro__' ? 'block' : 'none';
+    if (this.value === '__otro__') otro.focus();
+  });
+
+  function getCliente() {
+    const sel = document.getElementById('fCliente');
+    if (sel.value === '__otro__') return document.getElementById('fClienteOtro').value.trim();
+    return sel.value;
+  }
 
   let lineas = [];
 
@@ -609,7 +731,7 @@
   function addLinea() {
     const sabor = document.getElementById('fSabor').value.trim();
     const cant  = Number(document.getElementById('fCant').value);
-    if (!sabor)    { toast('Escribe el sabor', 'err'); return; }
+    if (!sabor)         { toast('Escribe el sabor', 'err'); return; }
     if (!cant || cant < 1) { toast('Escribe la cantidad', 'err'); return; }
     lineas.push({ sabor, cantidad: cant });
     renderLineas();
@@ -627,10 +749,10 @@
 
   document.getElementById('formPedido').addEventListener('submit', async function (e) {
     e.preventDefault();
-    const cliente = document.getElementById('fCliente').value.trim();
+    const cliente = getCliente();
     const fecha   = document.getElementById('fFecha').value;
 
-    if (!cliente)          { toast('Escribe el nombre del cliente', 'err'); return; }
+    if (!cliente)          { toast('Selecciona o escribe el cliente', 'err'); return; }
     if (lineas.length < 1) { toast('Agrega al menos un sabor', 'err'); return; }
     if (!fecha)            { toast('Elige la fecha de entrega', 'err'); return; }
 
@@ -655,6 +777,7 @@
 
     toast(`${rows.length} sabor${rows.length !== 1 ? 'es' : ''} guardado${rows.length !== 1 ? 's' : ''} ✓`, 'ok');
     this.reset();
+    document.getElementById('fClienteOtro').style.display = 'none';
     document.getElementById('fFecha').value = mananaISO();
     lineas = [];
     renderLineas();
@@ -662,7 +785,7 @@
     document.querySelector('[data-tab="pedidos"]').click();
   });
 
-  /* ════════════════════════════════════════
+  /* ══════════════════════════════════════
      INVENTARIO
   ════════════════════════════════════════ */
   async function loadInventario() {
@@ -673,7 +796,7 @@
     const { data, error } = await sb
       .from('inventario')
       .select('*')
-      .order('sabor', { ascending: true });
+      .order('cantidad', { ascending: false });  // mayor a menor
 
     if (error) {
       el.innerHTML = `<div class="empty"><div class="ico">⚠️</div><p>Error al cargar</p><small>${error.message}</small></div>`;
@@ -685,13 +808,29 @@
   }
 
   function renderInventario(el, items) {
-    // Botón de sincronización — siempre primero, siempre uno solo
+    // Botón sync — siempre uno, recreado junto con el contenido
     el.innerHTML = `
-      <button class="btn-sync" id="btnSync">
-        <span id="btnSyncIco">⇅</span> Sincronizar con Sheets
-      </button>
+      <button class="btn-sync" id="btnSync">⇅ Sincronizar con Sheets</button>
     `;
-    attachSyncListener();
+
+    document.getElementById('btnSync').addEventListener('click', async function () {
+      this.innerHTML = '<span class="spin-ico">↻</span> Sincronizando…';
+      this.disabled = true;
+      try {
+        const res = await fetch(
+          'https://script.google.com/macros/s/AKfycbyypVle9j827OdBGsmfJPka04vBrG0C0MfQLxk59yRg6ee5I8d896f8dQNDLbeHF-ETBA/exec?action=sincronizar',
+          { redirect: 'follow' }
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        toast('Sincronización completada ✓', 'ok');
+        _loaded.inventario = false;
+        loadInventario(); // re-renderiza, incluyendo este botón
+      } catch (e) {
+        toast('Error al sincronizar: ' + e.message, 'err');
+        this.innerHTML = '⇅ Sincronizar con Sheets';
+        this.disabled = false;
+      }
+    });
 
     if (items.length === 0) {
       el.insertAdjacentHTML('beforeend', `<div class="empty"><div class="ico">📦</div><p>Sin datos de inventario</p></div>`);
@@ -716,11 +855,9 @@
           <span class="inv-unit">und</span>
         </div>
       `;
-
       row.querySelector('.inv-cant').addEventListener('click', function () {
         editarInventario(item, this);
       });
-
       list.appendChild(row);
     });
 
@@ -742,30 +879,23 @@
 
     async function confirm() {
       const val = Number(input.value);
-      // Sin cambio
       if (isNaN(val) || val === original) {
-        input.replaceWith(display);
-        delete display.dataset.editing;
-        return;
+        input.replaceWith(display); delete display.dataset.editing; return;
       }
       input.disabled = true;
       const { error } = await sb
         .from('inventario')
         .update({ cantidad: val, actualizado_en: new Date().toISOString() })
         .eq('id', item.id);
-
       if (error) {
         toast('Error al guardar', 'err');
-        input.replaceWith(display);
-        delete display.dataset.editing;
-        return;
+        input.replaceWith(display); delete display.dataset.editing; return;
       }
       item.cantidad = val;
       display.textContent = val;
       input.replaceWith(display);
       delete display.dataset.editing;
       toast('Inventario actualizado ✓', 'ok');
-      // Recargar para actualizar la fecha
       _loaded.inventario = false;
       loadInventario();
     }
@@ -777,37 +907,9 @@
     });
   }
 
-  /* ── SINCRONIZAR ── */
-  function attachSyncListener() {
-    document.getElementById('btnSync').addEventListener('click', async function () {
-      this.disabled = true;
-      const ico = document.getElementById('btnSyncIco');
-      ico.className = 'spin-ico';
-      ico.textContent = '↻';
-      this.childNodes[1].textContent = ' Sincronizando…';
-
-      try {
-        const res = await fetch(
-          'https://script.google.com/macros/s/AKfycbyypVle9j827OdBGsmfJPka04vBrG0C0MfQLxk59yRg6ee5I8d896f8dQNDLbeHF-ETBA/exec?action=sincronizar',
-          { redirect: 'follow' }
-        );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        toast('Sincronización completada ✓', 'ok');
-        _loaded.inventario = false;
-        loadInventario();
-      } catch (e) {
-        toast('Error al sincronizar: ' + e.message, 'err');
-      } finally {
-        ico.className = '';
-        ico.textContent = '⇅';
-        this.childNodes[1].textContent = ' Sincronizar con Sheets';
-        this.disabled = false;
-      }
-    });
-  }
-
   /* ── REFRESH ── */
   document.getElementById('btnRefresh').addEventListener('click', () => {
+    _cancelUndo();
     _loaded.pedidos = false;
     _loaded.inventario = false;
     const active = document.querySelector('.tab-btn.active')?.dataset.tab;
