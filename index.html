@@ -387,9 +387,6 @@
 
   <!-- INVENTARIO -->
   <div id="panel-inventario" class="tab-panel">
-    <button class="btn-sync" id="btnSync">
-      <span id="btnSyncIco">⇅</span> Sincronizar con Sheets
-    </button>
     <div id="inv-content">
       <div class="loader"><div class="spinner"></div>Cargando inventario…</div>
     </div>
@@ -688,12 +685,20 @@
   }
 
   function renderInventario(el, items) {
+    // Botón de sincronización — siempre primero, siempre uno solo
+    el.innerHTML = `
+      <button class="btn-sync" id="btnSync">
+        <span id="btnSyncIco">⇅</span> Sincronizar con Sheets
+      </button>
+    `;
+    attachSyncListener();
+
     if (items.length === 0) {
-      el.innerHTML = `<div class="empty"><div class="ico">📦</div><p>Sin datos de inventario</p></div>`;
+      el.insertAdjacentHTML('beforeend', `<div class="empty"><div class="ico">📦</div><p>Sin datos de inventario</p></div>`);
       return;
     }
 
-    el.innerHTML = `<p class="sec-label">${items.length} sabores</p>`;
+    el.insertAdjacentHTML('beforeend', `<p class="sec-label">${items.length} sabores</p>`);
     const list = document.createElement('div');
     list.className = 'inv-list';
 
@@ -719,7 +724,7 @@
       list.appendChild(row);
     });
 
-    el.appendChild(list);
+    el.insertAdjacentElement('beforeend', list);
   }
 
   function editarInventario(item, display) {
@@ -773,31 +778,33 @@
   }
 
   /* ── SINCRONIZAR ── */
-  document.getElementById('btnSync').addEventListener('click', async function () {
-    this.disabled = true;
-    const ico = document.getElementById('btnSyncIco');
-    ico.className = 'spin-ico';
-    ico.textContent = '↻';
-    this.childNodes[1].textContent = ' Sincronizando…';
+  function attachSyncListener() {
+    document.getElementById('btnSync').addEventListener('click', async function () {
+      this.disabled = true;
+      const ico = document.getElementById('btnSyncIco');
+      ico.className = 'spin-ico';
+      ico.textContent = '↻';
+      this.childNodes[1].textContent = ' Sincronizando…';
 
-    try {
-      const res = await fetch(
-        'https://script.google.com/macros/s/AKfycbyypVle9j827OdBGsmfJPka04vBrG0C0MfQLxk59yRg6ee5I8d896f8dQNDLbeHF-ETBA/exec?action=sincronizar',
-        { redirect: 'follow' }
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      toast('Sincronización completada ✓', 'ok');
-      _loaded.inventario = false;
-      loadInventario();
-    } catch (e) {
-      toast('Error al sincronizar: ' + e.message, 'err');
-    } finally {
-      ico.className = '';
-      ico.textContent = '⇅';
-      this.childNodes[1].textContent = ' Sincronizar con Sheets';
-      this.disabled = false;
-    }
-  });
+      try {
+        const res = await fetch(
+          'https://script.google.com/macros/s/AKfycbyypVle9j827OdBGsmfJPka04vBrG0C0MfQLxk59yRg6ee5I8d896f8dQNDLbeHF-ETBA/exec?action=sincronizar',
+          { redirect: 'follow' }
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        toast('Sincronización completada ✓', 'ok');
+        _loaded.inventario = false;
+        loadInventario();
+      } catch (e) {
+        toast('Error al sincronizar: ' + e.message, 'err');
+      } finally {
+        ico.className = '';
+        ico.textContent = '⇅';
+        this.childNodes[1].textContent = ' Sincronizar con Sheets';
+        this.disabled = false;
+      }
+    });
+  }
 
   /* ── REFRESH ── */
   document.getElementById('btnRefresh').addEventListener('click', () => {
