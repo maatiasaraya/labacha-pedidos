@@ -279,6 +279,24 @@
     .btn-submit:disabled { opacity: .4; pointer-events: none; }
 
     /* ══════════════════════════════════════
+       BTN SYNC
+    ═══════════════════════════════════════ */
+    .btn-sync {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; margin-bottom: 14px;
+      background: var(--card); color: var(--text);
+      border: 1.5px solid var(--border); border-radius: 14px;
+      padding: 14px 18px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      transition: border-color .2s, color .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-sync:hover  { border-color: var(--pink); color: var(--pink); }
+    .btn-sync:active { opacity: .8; }
+    .btn-sync:disabled { opacity: .45; pointer-events: none; }
+    .spin-ico { display: inline-block; animation: spin .7s linear infinite; }
+
+    /* ══════════════════════════════════════
        INVENTARIO
     ═══════════════════════════════════════ */
     .inv-list { display: flex; flex-direction: column; }
@@ -369,6 +387,9 @@
 
   <!-- INVENTARIO -->
   <div id="panel-inventario" class="tab-panel">
+    <button class="btn-sync" id="btnSync">
+      <span id="btnSyncIco">⇅</span> Sincronizar con Sheets
+    </button>
     <div id="inv-content">
       <div class="loader"><div class="spinner"></div>Cargando inventario…</div>
     </div>
@@ -750,6 +771,33 @@
       if (e.key === 'Escape') { input.value = original; input.blur(); }
     });
   }
+
+  /* ── SINCRONIZAR ── */
+  document.getElementById('btnSync').addEventListener('click', async function () {
+    this.disabled = true;
+    const ico = document.getElementById('btnSyncIco');
+    ico.className = 'spin-ico';
+    ico.textContent = '↻';
+    this.childNodes[1].textContent = ' Sincronizando…';
+
+    try {
+      const res = await fetch(
+        'https://script.google.com/macros/s/AKfycbyypVle9j827OdBGsmfJPka04vBrG0C0MfQLxk59yRg6ee5I8d896f8dQNDLbeHF-ETBA/exec?action=sincronizar',
+        { redirect: 'follow' }
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      toast('Sincronización completada ✓', 'ok');
+      _loaded.inventario = false;
+      loadInventario();
+    } catch (e) {
+      toast('Error al sincronizar: ' + e.message, 'err');
+    } finally {
+      ico.className = '';
+      ico.textContent = '⇅';
+      this.childNodes[1].textContent = ' Sincronizar con Sheets';
+      this.disabled = false;
+    }
+  });
 
   /* ── REFRESH ── */
   document.getElementById('btnRefresh').addEventListener('click', () => {
