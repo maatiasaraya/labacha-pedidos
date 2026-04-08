@@ -4,26 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>La Bacha — Pedidos</title>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>La Bacha</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --pink:    #e91e8c;
-      --pink-lt: #fce4f3;
-      --teal:    #00bfa5;
-      --teal-lt: #e0f7f4;
-      --bg:      #f8f8f8;
-      --card:    #ffffff;
-      --text:    #1a1a2e;
-      --muted:   #7a7a9a;
-      --border:  #e8e8f0;
-      --danger:  #ff5252;
-      --radius:  16px;
-      --shadow:  0 2px 12px rgba(0,0,0,.08);
-      --tab-h:   64px;
-      --header-h:60px;
+      --bg:        #0d0d14;
+      --surface:   #13131e;
+      --card:      #1b1b28;
+      --card2:     #22223a;
+      --border:    #28283c;
+      --pink:      #f0116a;
+      --pink-dim:  rgba(240,17,106,.13);
+      --teal:      #00c9a7;
+      --teal-dim:  rgba(0,201,167,.13);
+      --text:      #eeeef5;
+      --muted:     #55558a;
+      --danger:    #ff4060;
+      --warn:      #ffab40;
+      --radius:    16px;
+      --tab-h:     66px;
+      --hdr-h:     58px;
     }
 
     html, body {
@@ -36,387 +38,293 @@
 
     /* ── HEADER ── */
     .header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--header-h);
-      background: var(--pink);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      z-index: 100;
-      box-shadow: 0 2px 8px rgba(233,30,140,.3);
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--hdr-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 18px; z-index: 100;
     }
-    .header h1 {
-      font-size: 22px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -.3px;
+    .logo strong {
+      display: block;
+      font-size: 20px; font-weight: 900; letter-spacing: -.3px;
+      background: linear-gradient(90deg, var(--pink) 0%, #ff8fc8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .header h1 span { opacity: .7; font-weight: 400; font-size: 14px; display: block; line-height: 1; }
+    .logo span { font-size: 11px; color: var(--muted); font-weight: 500; }
     .btn-refresh {
-      background: rgba(255,255,255,.2);
-      border: none;
-      border-radius: 50%;
-      width: 40px; height: 40px;
-      color: #fff;
-      font-size: 20px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .2s;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--muted); font-size: 19px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: color .15s, border-color .15s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .btn-refresh:active { background: rgba(255,255,255,.35); }
+    .btn-refresh:active { color: var(--pink); border-color: var(--pink); }
 
     /* ── MAIN ── */
     .main {
       position: fixed;
-      top: var(--header-h);
-      bottom: var(--tab-h);
+      top: var(--hdr-h); bottom: var(--tab-h);
       left: 0; right: 0;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
     }
-
-    .tab-panel { display: none; padding: 16px; }
+    .tab-panel { display: none; padding: 14px 14px 28px; }
     .tab-panel.active { display: block; }
 
-    /* ── TAB BAR ── */
+    /* ── TABBAR ── */
     .tabbar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
+      position: fixed; bottom: 0; left: 0; right: 0;
       height: var(--tab-h);
-      background: var(--card);
-      border-top: 1px solid var(--border);
-      display: flex;
-      z-index: 100;
+      background: var(--surface); border-top: 1px solid var(--border);
+      display: flex; z-index: 100;
     }
     .tab-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      border: none;
-      background: none;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: color .2s;
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 3px;
+      border: none; background: none;
+      color: var(--muted); font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .5px;
+      cursor: pointer; position: relative;
       -webkit-tap-highlight-color: transparent;
+      transition: color .15s;
     }
-    .tab-btn .icon { font-size: 22px; line-height: 1; }
+    .tab-btn .ico { font-size: 22px; line-height: 1; }
     .tab-btn.active { color: var(--pink); }
-
-    /* ── CARDS ── */
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      margin-bottom: 12px;
+    .tab-btn.active::after {
+      content: '';
+      position: absolute; top: 0; left: 28%; right: 28%;
+      height: 2px; background: var(--pink);
+      border-radius: 0 0 4px 4px;
+    }
+    .tab-badge {
+      position: absolute; top: 7px; right: calc(50% - 24px);
+      background: var(--pink); color: #fff;
+      border-radius: 50%; width: 17px; height: 17px;
+      font-size: 10px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    .section-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .6px;
-      margin-bottom: 10px;
-    }
-
-    /* ── PEDIDO CARD ── */
-    .pedido-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      margin-bottom: 12px;
-      border-left: 4px solid var(--pink);
-    }
-    .pedido-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-    .pedido-cliente {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text);
-    }
-    .pedido-fecha {
-      font-size: 12px;
-      color: var(--muted);
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 3px 8px;
-      font-weight: 600;
-    }
-    .pedido-fecha.urgente { background: #fff3e0; color: #e65100; }
-    .pedido-fecha.vencido { background: #fce4e4; color: var(--danger); }
-    .pedido-detalle {
-      font-size: 15px;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-    .pedido-detalle strong { color: var(--pink); }
-    .btn-entregar {
-      width: 100%;
-      background: var(--teal);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 13px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity .2s, transform .1s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn-entregar:active { opacity: .85; transform: scale(.98); }
-    .btn-entregar:disabled { background: #ccc; cursor: not-allowed; }
-
-    /* ── EMPTY STATE ── */
-    .empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
-    }
-    .empty .ico { font-size: 56px; margin-bottom: 12px; }
-    .empty p { font-size: 16px; font-weight: 600; }
-    .empty small { font-size: 13px; }
-
-    /* ── LOADER ── */
+    /* ── LOADER / EMPTY ── */
     .loader {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 20px;
-      gap: 14px;
-      color: var(--muted);
-      font-size: 15px;
-      font-weight: 600;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 72px 20px; gap: 14px;
+      color: var(--muted); font-size: 14px; font-weight: 600;
     }
     .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid var(--border);
-      border-top-color: var(--pink);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
+      width: 34px; height: 34px;
+      border: 3px solid var(--border); border-top-color: var(--pink);
+      border-radius: 50%; animation: spin .7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .empty {
+      text-align: center; padding: 72px 20px; color: var(--muted);
+    }
+    .empty .ico { font-size: 54px; margin-bottom: 12px; }
+    .empty p { font-size: 17px; font-weight: 800; }
+    .empty small { font-size: 13px; margin-top: 4px; display: block; }
 
-    /* ── FORMULARIO ── */
-    .form-group {
-      margin-bottom: 16px;
+    /* ── SEC LABEL ── */
+    .sec-label {
+      font-size: 11px; font-weight: 800; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .8px;
+      margin-bottom: 10px;
     }
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-    }
-    input, select, textarea {
-      width: 100%;
-      background: var(--bg);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 16px;
-      font-size: 17px;
-      color: var(--text);
-      font-family: inherit;
-      outline: none;
-      transition: border-color .2s;
-      -webkit-appearance: none;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--pink);
-      background: #fff;
-    }
-    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a9a' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 44px; }
-    input[type="number"] { -moz-appearance: textfield; }
-    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-    .btn-submit {
-      width: 100%;
-      background: var(--pink);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      font-size: 17px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: opacity .2s, transform .1s;
-      margin-top: 8px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn-submit:active { opacity: .85; transform: scale(.98); }
-    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
 
     /* ── TOAST ── */
     .toast {
       position: fixed;
-      bottom: calc(var(--tab-h) + 16px);
-      left: 16px; right: 16px;
-      background: var(--text);
-      color: #fff;
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-size: 15px;
-      font-weight: 600;
-      text-align: center;
-      z-index: 200;
-      opacity: 0;
-      transform: translateY(10px);
+      bottom: calc(var(--tab-h) + 14px); left: 14px; right: 14px;
+      background: var(--card2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 13px 18px; font-size: 14px; font-weight: 700;
+      text-align: center; z-index: 300;
+      opacity: 0; transform: translateY(8px);
       transition: opacity .25s, transform .25s;
       pointer-events: none;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
-    .toast.success { background: var(--teal); }
-    .toast.error   { background: var(--danger); }
+    .toast.ok  { background: var(--teal); color: #001a14; border-color: var(--teal); }
+    .toast.err { background: var(--danger); color: #fff; border-color: var(--danger); }
 
-    /* ── LÍNEAS DE SABOR ── */
-    .linea-inputs {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .input-sabor {
-      flex: 2;
-    }
-    .input-cantidad {
-      flex: 1;
-      min-width: 0;
-    }
-    .btn-add {
-      width: 48px;
-      height: 52px;
-      flex-shrink: 0;
-      background: var(--pink);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-size: 24px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      -webkit-tap-highlight-color: transparent;
-      transition: opacity .2s;
-    }
-    .btn-add:active { opacity: .8; }
+    /* ══════════════════════════════════════
+       PEDIDOS
+    ═══════════════════════════════════════ */
+    .cliente-group { margin-bottom: 14px; }
 
-    .lista-lineas {
-      background: var(--bg);
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 16px;
-    }
-    .lista-lineas-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      margin-bottom: 8px;
-    }
-    .lista-lineas ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .lista-lineas li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .cliente-hdr {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 16px;
       background: var(--card);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 15px;
-      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: var(--radius) var(--radius) 0 0;
     }
-    .linea-sabor-txt { flex: 1; }
-    .linea-kg {
-      color: var(--pink);
-      font-weight: 800;
-      margin-right: 12px;
+    .cliente-nombre { flex: 1; font-size: 17px; font-weight: 900; }
+    .cliente-pill {
+      font-size: 11px; font-weight: 800; color: var(--pink);
+      background: var(--pink-dim); border-radius: 20px; padding: 3px 10px;
     }
+    .pedido-fecha-row {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      padding: 6px 16px;
+      font-size: 11px; font-weight: 800; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .6px;
+    }
+    .pedido-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: none;
+    }
+    .pedido-row:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+    .pedido-info { flex: 1; min-width: 0; }
+    .pedido-sabor { font-size: 16px; font-weight: 700; }
+    .pedido-meta {
+      margin-top: 3px; display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--muted);
+    }
+    .fecha-badge {
+      font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px;
+    }
+    .fecha-badge.ok      { background: var(--teal-dim); color: var(--teal); }
+    .fecha-badge.urgente { background: rgba(255,171,64,.15); color: var(--warn); }
+    .fecha-badge.vencido { background: rgba(255,64,96,.15); color: var(--danger); }
+
+    .row-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--card2);
+      color: var(--muted); font-size: 17px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-icon:active { transform: scale(.93); }
+    .btn-icon.del:active { background: rgba(255,64,96,.2); color: var(--danger); border-color: var(--danger); }
+    .btn-icon.chk:active { background: var(--teal-dim); color: var(--teal); border-color: var(--teal); }
+    .btn-icon:disabled { opacity: .35; pointer-events: none; }
+
+    /* ══════════════════════════════════════
+       FORMULARIO — NUEVO
+    ═══════════════════════════════════════ */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px;
+    }
+    .form-group { margin-bottom: 16px; }
+    label {
+      display: block; font-size: 11px; font-weight: 800;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .6px;
+      margin-bottom: 7px;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="date"] {
+      width: 100%;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+      font-size: 16px; color: var(--text); font-family: inherit;
+      outline: none; transition: border-color .2s;
+      -webkit-appearance: none; color-scheme: dark;
+    }
+    input:focus { border-color: var(--pink); }
+    input::placeholder { color: var(--muted); }
+    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .sabor-row { display: flex; gap: 8px; align-items: stretch; }
+    .sabor-row .inp-sabor { flex: 3; }
+    .sabor-row .inp-cant  { flex: 1.2; min-width: 0; }
+    .btn-plus {
+      width: 52px; flex-shrink: 0;
+      background: var(--pink); color: #fff;
+      border: none; border-radius: 12px;
+      font-size: 28px; font-weight: 300; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: opacity .15s; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-plus:active { opacity: .75; }
+
+    .lineas-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 12px; overflow: hidden; margin-bottom: 16px;
+    }
+    .linea-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-bottom: 1px solid var(--border);
+    }
+    .linea-item:last-child { border-bottom: none; }
+    .linea-sabor { flex: 1; font-size: 15px; font-weight: 600; }
+    .linea-cant  { font-size: 15px; font-weight: 900; color: var(--pink); }
+    .linea-unit  { font-size: 11px; color: var(--muted); font-weight: 600; }
     .btn-del-linea {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 20px;
-      cursor: pointer;
-      line-height: 1;
-      padding: 0 2px;
+      background: none; border: none; color: var(--muted);
+      font-size: 24px; line-height: 1; cursor: pointer; padding: 0 4px;
       -webkit-tap-highlight-color: transparent;
     }
     .btn-del-linea:active { color: var(--danger); }
 
-    /* ── PRODUCCIÓN ── */
-    .prod-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      margin-bottom: 12px;
+    .btn-submit {
+      width: 100%; background: var(--pink); color: #fff;
+      border: none; border-radius: 14px; padding: 16px;
+      font-size: 16px; font-weight: 900; letter-spacing: .2px;
+      cursor: pointer; transition: opacity .15s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .prod-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .prod-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .prod-item:first-child { padding-top: 0; }
-    .prod-sabor { font-size: 16px; font-weight: 700; }
-    .prod-kg {
-      background: var(--pink-lt);
-      color: var(--pink);
-      border-radius: 10px;
-      padding: 5px 12px;
-      font-size: 15px;
-      font-weight: 800;
-    }
-    .prod-kg.ok {
-      background: var(--teal-lt);
-      color: var(--teal);
-    }
+    .btn-submit:active  { opacity: .85; transform: scale(.98); }
+    .btn-submit:disabled { opacity: .4; pointer-events: none; }
 
-    /* ── BADGE ── */
-    .badge {
-      display: inline-block;
-      background: var(--pink);
-      color: #fff;
-      border-radius: 20px;
-      padding: 2px 8px;
-      font-size: 12px;
-      font-weight: 800;
-      margin-left: 6px;
-      vertical-align: middle;
+    /* ══════════════════════════════════════
+       INVENTARIO
+    ═══════════════════════════════════════ */
+    .inv-list { display: flex; flex-direction: column; }
+    .inv-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 15px 16px;
+      background: var(--card); border: 1px solid var(--border); border-top: none;
     }
+    .inv-list .inv-row:first-child { border-top: 1px solid var(--border); border-radius: var(--radius) var(--radius) 0 0; }
+    .inv-list .inv-row:last-child  { border-radius: 0 0 var(--radius) var(--radius); }
+    .inv-list .inv-row:only-child  { border-top: 1px solid var(--border); border-radius: var(--radius); }
+    .inv-sabor-wrap { flex: 1; min-width: 0; }
+    .inv-sabor-name { font-size: 15px; font-weight: 700; }
+    .inv-updated    { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .inv-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .inv-cant {
+      font-size: 20px; font-weight: 900; color: var(--pink);
+      min-width: 36px; text-align: right; cursor: pointer;
+      border-radius: 6px; padding: 2px 4px;
+      transition: background .15s;
+    }
+    .inv-cant:active { background: var(--pink-dim); }
+    .inv-unit { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .inv-edit-input {
+      width: 72px; padding: 6px 10px;
+      background: var(--surface); border: 1.5px solid var(--pink);
+      border-radius: 8px; font-size: 20px; font-weight: 900;
+      color: var(--pink); text-align: right; font-family: inherit;
+      outline: none; -webkit-appearance: none; -moz-appearance: textfield;
+      color-scheme: dark;
+    }
+    .inv-edit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
   </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <header class="header">
-  <h1>🍦 La Bacha <span>Gestión de pedidos</span></h1>
-  <button class="btn-refresh" id="btnRefresh" title="Actualizar">↻</button>
+  <div class="logo">
+    <strong>🍦 La Bacha</strong>
+    <span>Gestión de pedidos</span>
+  </div>
+  <button class="btn-refresh" id="btnRefresh" aria-label="Actualizar">↻</button>
 </header>
 
-<!-- CONTENIDO -->
+<!-- MAIN -->
 <main class="main">
 
   <!-- PEDIDOS -->
@@ -426,128 +334,114 @@
     </div>
   </div>
 
-  <!-- NUEVO PEDIDO -->
+  <!-- NUEVO -->
   <div id="panel-nuevo" class="tab-panel">
     <div class="card">
-      <p class="section-title">Nuevo pedido</p>
       <form id="formPedido" novalidate>
 
-        <!-- Cliente -->
         <div class="form-group">
           <label for="fCliente">Cliente</label>
           <input id="fCliente" type="text" placeholder="Nombre del cliente" autocomplete="off" />
         </div>
 
-        <!-- Agregar línea de sabor -->
         <div class="form-group">
           <label>Sabores</label>
-          <div class="linea-inputs">
-            <input id="fSabor" type="text" placeholder="Sabor" autocomplete="off" class="input-sabor" />
-            <input id="fCantidad" type="number" placeholder="kg" min="0.5" step="0.5" class="input-cantidad" />
-            <button type="button" id="btnAddLinea" class="btn-add">+</button>
+          <div class="sabor-row">
+            <input id="fSabor" type="text"   placeholder="Sabor"  class="inp-sabor" autocomplete="off" />
+            <input id="fCant"  type="number" placeholder="Und"    class="inp-cant" min="1" step="1" />
+            <button type="button" class="btn-plus" id="btnAdd">+</button>
           </div>
         </div>
 
-        <!-- Lista de sabores agregados -->
-        <div id="listaLineas" class="lista-lineas" style="display:none">
-          <p class="lista-lineas-label">Sabores agregados</p>
-          <ul id="ulLineas"></ul>
+        <div id="lineasWrap" style="display:none">
+          <div class="lineas-box" id="lineasBox"></div>
         </div>
 
-        <!-- Fecha de entrega -->
-        <div class="form-group" style="margin-top:8px">
+        <div class="form-group">
           <label for="fFecha">Fecha de entrega</label>
           <input id="fFecha" type="date" />
         </div>
 
-        <button type="submit" class="btn-submit" id="btnAgregar">Guardar pedido</button>
+        <button type="submit" class="btn-submit" id="btnGuardar">Guardar pedido</button>
       </form>
     </div>
   </div>
 
-  <!-- PRODUCCIÓN -->
-  <div id="panel-produccion" class="tab-panel">
-    <div id="prod-content">
-      <div class="loader"><div class="spinner"></div>Cargando producción…</div>
+  <!-- INVENTARIO -->
+  <div id="panel-inventario" class="tab-panel">
+    <div id="inv-content">
+      <div class="loader"><div class="spinner"></div>Cargando inventario…</div>
     </div>
   </div>
 
 </main>
 
-<!-- TAB BAR -->
+<!-- TABBAR -->
 <nav class="tabbar">
   <button class="tab-btn active" data-tab="pedidos">
-    <span class="icon">📋</span>
-    Pedidos
+    <span class="ico">📋</span>Pedidos
   </button>
   <button class="tab-btn" data-tab="nuevo">
-    <span class="icon">➕</span>
-    Nuevo
+    <span class="ico">✏️</span>Nuevo
   </button>
-  <button class="tab-btn" data-tab="produccion">
-    <span class="icon">🏭</span>
-    Producción
+  <button class="tab-btn" data-tab="inventario">
+    <span class="ico">📦</span>Inventario
   </button>
 </nav>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<div id="toast" class="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const API = 'https://script.google.com/macros/s/AKfycbyypVle9j827OdBGsmfJPka04vBrG0C0MfQLxk59yRg6ee5I8d896f8dQNDLbeHF-ETBA/exec';
-
-  /* ── JSONP ── */
-  let _cbCounter = 0;
-  function jsonp(params) {
-    return new Promise((resolve, reject) => {
-      const cbName = '__lbcb' + (++_cbCounter);
-      const script = document.createElement('script');
-      let settled = false;
-
-      const timeout = setTimeout(() => {
-        if (!settled) { settled = true; cleanup(); reject(new Error('Timeout')); }
-      }, 12000);
-
-      function cleanup() {
-        clearTimeout(timeout);
-        delete window[cbName];
-        if (script.parentNode) script.parentNode.removeChild(script);
-      }
-
-      window[cbName] = (data) => {
-        if (!settled) { settled = true; cleanup(); resolve(data); }
-      };
-
-      // onload: el script terminó de ejecutarse pero no llamó al callback → respuesta inválida
-      // (settled=true significa que el callback sí fue invocado, no hacemos nada)
-      script.onload = () => {
-        if (!settled) { settled = true; cleanup(); reject(new Error('Respuesta inválida del servidor')); }
-      };
-
-      // NO usamos onerror para rechazar: GAS emite un 302 que algunos navegadores
-      // reportan como error antes de seguir la redirección, causando un falso rechazo.
-      // El timeout cubre los fallos reales de red.
-
-      const qs = Object.entries({ ...params, callback: cbName })
-        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
-
-      script.src = API + '?' + qs;
-      document.head.appendChild(script);
-    });
-  }
+  /* ── SUPABASE ── */
+  const sb = supabase.createClient(
+    'https://nwuubkgfegxdouqpxnmh.supabase.co',
+    'sb_publishable_9iC-oZ5UVluTNgkTREqqCg_98cbxa3f'
+  );
 
   /* ── TOAST ── */
-  let _toastTimer;
+  let _tt;
   function toast(msg, type = '') {
     const el = document.getElementById('toast');
     el.textContent = msg;
     el.className = 'toast show ' + type;
-    clearTimeout(_toastTimer);
-    _toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+    clearTimeout(_tt);
+    _tt = setTimeout(() => el.classList.remove('show'), 3200);
+  }
+
+  /* ── FECHA UTILS ── */
+  function hoyISO() { return new Date().toISOString().slice(0, 10); }
+  function mananaISO() {
+    const d = new Date(); d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+  function fmtFecha(str) {
+    if (!str) return '—';
+    const iso = str.split('T')[0];
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  }
+  function fechaEstado(str) {
+    if (!str) return 'ok';
+    const iso = str.split('T')[0];
+    const hoy = hoyISO(), man = mananaISO();
+    if (iso < hoy) return 'vencido';
+    if (iso === hoy || iso === man) return 'urgente';
+    return 'ok';
+  }
+  function fechaLabel(str) {
+    if (!str) return '—';
+    const iso = str.split('T')[0];
+    const hoy = hoyISO(), man = mananaISO();
+    if (iso === hoy) return 'Hoy';
+    if (iso === man) return 'Mañana';
+    if (iso < hoy)  return `Venció ${fmtFecha(str)}`;
+    return fmtFecha(str);
   }
 
   /* ── TABS ── */
-  const panels = { pedidos: null, nuevo: null, produccion: null };
+  const _loaded = { pedidos: false, inventario: false };
+
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -555,339 +449,315 @@
       btn.classList.add('active');
       const tab = btn.dataset.tab;
       document.getElementById('panel-' + tab).classList.add('active');
-      if (tab === 'pedidos' && !panels.pedidos) loadPedidos();
-      if (tab === 'produccion' && !panels.produccion) loadProduccion();
+      if (tab === 'pedidos'    && !_loaded.pedidos)    loadPedidos();
+      if (tab === 'inventario' && !_loaded.inventario) loadInventario();
     });
   });
 
-  /* ── FECHA UTILS ── */
-  function hoy() {
-    const d = new Date();
-    return d.toISOString().slice(0, 10);
-  }
-  function manana() {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().slice(0, 10);
-  }
-
-  // Convierte cualquier formato de fecha a ISO (YYYY-MM-DD).
-  // Devuelve '' si el valor es vacío, inválido o una fecha epoch (< 2000).
-  function normalizeFecha(val) {
-    if (!val && val !== 0) return '';
-    const str = String(val).trim();
-    if (!str) return '';
-
-    // ISO: YYYY-MM-DD (Apps Script con getISOString o formato estándar)
-    if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
-      const iso = str.slice(0, 10);
-      return iso >= '2000-01-01' ? iso : '';
-    }
-
-    // DD/MM/YYYY (formato que devuelve Apps Script al serializar fechas del sheet)
-    const ddmm = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-    if (ddmm) {
-      const iso = `${ddmm[3]}-${ddmm[2].padStart(2, '0')}-${ddmm[1].padStart(2, '0')}`;
-      return iso >= '2000-01-01' ? iso : '';
-    }
-
-    // Timestamp numérico en ms
-    if (/^\d+$/.test(str)) {
-      const d = new Date(Number(str));
-      if (isNaN(d.getTime()) || d.getFullYear() < 2000) return '';
-      return d.toISOString().slice(0, 10);
-    }
-
-    return '';
-  }
-
-  function formatFecha(val) {
-    const iso = normalizeFecha(val);
-    if (!iso) return '';
-    const [y, m, d] = iso.split('-');
-    return `${d}/${m}/${y}`;
-  }
-
-  function estadoFecha(val) {
-    const iso = normalizeFecha(val);
-    if (!iso) return '';
-    const hoyStr = hoy();
-    const manaStr = manana();
-    if (iso < hoyStr) return 'vencido';
-    if (iso === hoyStr || iso === manaStr) return 'urgente';
-    return '';
-  }
-
-  /* ── PEDIDOS ── */
-  async function loadPedidos() {
+  /* ════════════════════════════════════════
+     PEDIDOS
+  ════════════════════════════════════════ */
+  async function loadPedidos(silent = false) {
     const el = document.getElementById('pedidos-content');
-    el.innerHTML = '<div class="loader"><div class="spinner"></div>Cargando pedidos…</div>';
-    panels.pedidos = null;
+    if (!silent) el.innerHTML = '<div class="loader"><div class="spinner"></div>Cargando pedidos…</div>';
+    _loaded.pedidos = false;
 
-    try {
-      const data = await jsonp({ action: 'getPedidos' });
-      panels.pedidos = data;
-      renderPedidos(data);
-    } catch (e) {
-      el.innerHTML = `<div class="empty"><div class="ico">⚠️</div><p>No se pudieron cargar los pedidos</p><small>${e.message}</small></div>`;
+    const { data, error } = await sb
+      .from('pedidos')
+      .select('*')
+      .eq('estado', 'pendiente')
+      .order('fecha_entrega', { ascending: true })
+      .order('cliente',       { ascending: true });
+
+    if (error) {
+      el.innerHTML = `<div class="empty"><div class="ico">⚠️</div><p>Error al cargar</p><small>${error.message}</small></div>`;
+      return;
     }
+
+    _loaded.pedidos = true;
+    renderPedidos(el, data || []);
   }
 
-  function renderPedidos(data) {
-    const el = document.getElementById('pedidos-content');
-    // Actualizar badge en tab
+  function renderPedidos(el, pedidos) {
+    // Badge en tab
     const tabBtn = document.querySelector('[data-tab="pedidos"]');
-    let oldBadge = tabBtn.querySelector('.badge');
-    if (oldBadge) oldBadge.remove();
-
-    const pedidos = Array.isArray(data) ? data : (data.pedidos || []);
-    const pendientes = pedidos.filter(p => !p.entregado && p.estado !== 'entregado');
-
-    if (pendientes.length > 0) {
-      const badge = document.createElement('span');
-      badge.className = 'badge';
-      badge.textContent = pendientes.length;
-      tabBtn.appendChild(badge);
+    const old = tabBtn.querySelector('.tab-badge');
+    if (old) old.remove();
+    if (pedidos.length > 0) {
+      const b = document.createElement('span');
+      b.className = 'tab-badge';
+      b.textContent = pedidos.length;
+      tabBtn.appendChild(b);
     }
 
-    if (pendientes.length === 0) {
-      el.innerHTML = `<div class="empty"><div class="ico">✅</div><p>¡Todo entregado!</p><small>No hay pedidos pendientes.</small></div>`;
+    if (pedidos.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="ico">✅</div><p>Sin pedidos pendientes</p><small>Todo al día.</small></div>`;
       return;
     }
 
-    // Ordenar por fecha de entrega (normalizadas a ISO para comparación correcta)
-    pendientes.sort((a, b) => {
-      const fa = normalizeFecha(a.fechaEntrega) || '';
-      const fb = normalizeFecha(b.fechaEntrega) || '';
-      return fa.localeCompare(fb);
+    // Agrupar por cliente manteniendo orden por fecha
+    const grupos = new Map();
+    pedidos.forEach(p => {
+      if (!grupos.has(p.cliente)) grupos.set(p.cliente, []);
+      grupos.get(p.cliente).push(p);
     });
 
-    el.innerHTML = `<p class="section-title">${pendientes.length} pedido${pendientes.length !== 1 ? 's' : ''} pendiente${pendientes.length !== 1 ? 's' : ''}</p>`;
-    pendientes.forEach(p => {
-      const id       = p.id       || '';
-      const cliente  = p.cliente  || '—';
-      const sabor    = p.sabor    || '—';
-      const cantidad = p.cantidad || '';
-      const fecha    = p.fechaEntrega || '';  // campo exacto que devuelve la API
-      const estado   = estadoFecha(fecha);
+    el.innerHTML = '';
 
-      const card = document.createElement('div');
-      card.className = 'pedido-card';
-      card.innerHTML = `
-        <div class="pedido-header">
-          <div class="pedido-cliente">${cliente}</div>
-          <div class="pedido-fecha ${estado}">${formatFecha(fecha) || 'Sin fecha'}</div>
-        </div>
-        <div class="pedido-detalle">
-          <strong>${sabor}</strong>${cantidad ? ` · ${cantidad} kg` : ''}
-        </div>
-        <button class="btn-entregar" data-id="${id}">✓ Marcar como entregado</button>
+    grupos.forEach((items, cliente) => {
+      const g = document.createElement('div');
+      g.className = 'cliente-group';
+
+      // Cabecera del cliente
+      const hdr = document.createElement('div');
+      hdr.className = 'cliente-hdr';
+      hdr.innerHTML = `
+        <span class="cliente-nombre">${cliente}</span>
+        <span class="cliente-pill">${items.length} sabor${items.length !== 1 ? 'es' : ''}</span>
       `;
-      el.appendChild(card);
+      g.appendChild(hdr);
 
-      card.querySelector('.btn-entregar').addEventListener('click', function () {
-        entregarPedido(id, this);
-      });
-    });
-  }
-
-  async function entregarPedido(id, btn) {
-    btn.disabled = true;
-    btn.textContent = 'Entregando…';
-    try {
-      await jsonp({ action: 'entregarPedido', id });
-      panels.pedidos = null;
-      panels.produccion = null;
-      toast('Pedido marcado como entregado ✓', 'success');
-      await loadPedidos();
-      // Refrescar producción si está visible
-      if (document.getElementById('panel-produccion').classList.contains('active')) {
-        loadProduccion();
-      }
-    } catch (e) {
-      toast('Error al entregar: ' + e.message, 'error');
-      btn.disabled = false;
-      btn.textContent = '✓ Marcar como entregado';
-    }
-  }
-
-  /* ── PRODUCCIÓN ── */
-  async function loadProduccion() {
-    const el = document.getElementById('prod-content');
-    el.innerHTML = '<div class="loader"><div class="spinner"></div>Cargando producción…</div>';
-    panels.produccion = null;
-
-    try {
-      const data = await jsonp({ action: 'getInventario' });
-      panels.produccion = data;
-      renderProduccion(data);
-    } catch (e) {
-      el.innerHTML = `<div class="empty"><div class="ico">⚠️</div><p>No se pudo cargar</p><small>${e.message}</small></div>`;
-    }
-  }
-
-  function renderProduccion(data) {
-    const el = document.getElementById('prod-content');
-    const items = Array.isArray(data) ? data : (data.inventario || data.produccion || []);
-
-    if (items.length === 0) {
-      el.innerHTML = `<div class="empty"><div class="ico">🎉</div><p>Nada por producir</p><small>Todos los sabores están al día.</small></div>`;
-      return;
-    }
-
-    const necesitan = items.filter(i => {
-      const falta = parseFloat(i.falta || i.pendiente || i.necesario || 0);
-      return falta > 0;
-    });
-    const ok = items.filter(i => {
-      const falta = parseFloat(i.falta || i.pendiente || i.necesario || 0);
-      return falta <= 0;
-    });
-
-    let html = '';
-
-    if (necesitan.length > 0) {
-      html += `<p class="section-title">Por producir (${necesitan.length})</p><div class="prod-card">`;
-      necesitan
-        .sort((a, b) => {
-          const fa = parseFloat(b.falta || b.pendiente || b.necesario || 0);
-          const fb = parseFloat(a.falta || a.pendiente || a.necesario || 0);
-          return fa - fb;
-        })
-        .forEach(i => {
-          const sabor = i.sabor || i.Sabor || i.nombre || '—';
-          const falta = parseFloat(i.falta || i.pendiente || i.necesario || 0);
-          html += `<div class="prod-item">
-            <span class="prod-sabor">${sabor}</span>
-            <span class="prod-kg">${falta} kg</span>
-          </div>`;
+      // Filas de sabores
+      items.forEach(p => {
+        const estado = fechaEstado(p.fecha_entrega);
+        const row = document.createElement('div');
+        row.className = 'pedido-row';
+        row.innerHTML = `
+          <div class="pedido-info">
+            <div class="pedido-sabor">${p.sabor}</div>
+            <div class="pedido-meta">
+              <span>${p.cantidad} und</span>
+              <span class="fecha-badge ${estado}">${fechaLabel(p.fecha_entrega)}</span>
+            </div>
+          </div>
+          <div class="row-actions">
+            <button class="btn-icon del" aria-label="Eliminar">🗑</button>
+            <button class="btn-icon chk" aria-label="Entregar">✓</button>
+          </div>
+        `;
+        row.querySelector('.btn-icon.del').addEventListener('click', async function () {
+          this.disabled = true;
+          const { error } = await sb.from('pedidos').delete().eq('id', p.id);
+          if (error) { toast('Error al eliminar', 'err'); this.disabled = false; return; }
+          toast('Pedido eliminado');
+          _loaded.pedidos = false;
+          loadPedidos(true);
         });
-      html += '</div>';
-    }
-
-    if (ok.length > 0) {
-      html += `<p class="section-title">Completos (${ok.length})</p><div class="prod-card">`;
-      ok.forEach(i => {
-        const sabor = i.sabor || i.Sabor || i.nombre || '—';
-        html += `<div class="prod-item">
-          <span class="prod-sabor">${sabor}</span>
-          <span class="prod-kg ok">✓ OK</span>
-        </div>`;
+        row.querySelector('.btn-icon.chk').addEventListener('click', async function () {
+          this.disabled = true;
+          const { error } = await sb.from('pedidos').update({ estado: 'entregado' }).eq('id', p.id);
+          if (error) { toast('Error al actualizar', 'err'); this.disabled = false; return; }
+          toast('Marcado como entregado ✓', 'ok');
+          _loaded.pedidos = false;
+          loadPedidos(true);
+        });
+        g.appendChild(row);
       });
-      html += '</div>';
-    }
 
-    if (!html) {
-      el.innerHTML = `<div class="empty"><div class="ico">🎉</div><p>Nada por producir</p></div>`;
-      return;
-    }
-
-    el.innerHTML = html;
+      el.appendChild(g);
+    });
   }
 
-  /* ── FORMULARIO ── */
-  document.getElementById('fFecha').value = manana();
+  /* ════════════════════════════════════════
+     NUEVO PEDIDO
+  ════════════════════════════════════════ */
+  document.getElementById('fFecha').value = mananaISO();
 
-  // Estado interno: lista de líneas {sabor, cantidad}
   let lineas = [];
 
   function renderLineas() {
-    const lista = document.getElementById('listaLineas');
-    const ul    = document.getElementById('ulLineas');
-    if (lineas.length === 0) { lista.style.display = 'none'; return; }
-    lista.style.display = 'block';
-    ul.innerHTML = '';
+    const wrap = document.getElementById('lineasWrap');
+    const box  = document.getElementById('lineasBox');
+    if (lineas.length === 0) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    box.innerHTML = '';
     lineas.forEach((l, i) => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <span class="linea-sabor-txt">${l.sabor}</span>
-        <span class="linea-kg">${l.cantidad} kg</span>
-        <button type="button" class="btn-del-linea" data-i="${i}" aria-label="Eliminar">×</button>
+      const div = document.createElement('div');
+      div.className = 'linea-item';
+      div.innerHTML = `
+        <span class="linea-sabor">${l.sabor}</span>
+        <span class="linea-cant">${l.cantidad}</span>
+        <span class="linea-unit">und</span>
+        <button type="button" class="btn-del-linea" aria-label="Quitar">×</button>
       `;
-      ul.appendChild(li);
-    });
-    ul.querySelectorAll('.btn-del-linea').forEach(btn => {
-      btn.addEventListener('click', () => {
-        lineas.splice(Number(btn.dataset.i), 1);
+      div.querySelector('.btn-del-linea').addEventListener('click', () => {
+        lineas.splice(i, 1);
         renderLineas();
       });
+      box.appendChild(div);
     });
   }
 
-  document.getElementById('btnAddLinea').addEventListener('click', () => {
-    const sabor    = document.getElementById('fSabor').value.trim();
-    const cantidad = document.getElementById('fCantidad').value.trim();
-    if (!sabor)    { toast('Escribe el sabor', 'error'); return; }
-    if (!cantidad) { toast('Escribe la cantidad', 'error'); return; }
-    lineas.push({ sabor, cantidad });
+  function addLinea() {
+    const sabor = document.getElementById('fSabor').value.trim();
+    const cant  = Number(document.getElementById('fCant').value);
+    if (!sabor)    { toast('Escribe el sabor', 'err'); return; }
+    if (!cant || cant < 1) { toast('Escribe la cantidad', 'err'); return; }
+    lineas.push({ sabor, cantidad: cant });
     renderLineas();
-    document.getElementById('fSabor').value    = '';
-    document.getElementById('fCantidad').value = '';
+    document.getElementById('fSabor').value = '';
+    document.getElementById('fCant').value  = '';
     document.getElementById('fSabor').focus();
-  });
+  }
 
-  // Permitir agregar línea con Enter en los campos de sabor/cantidad
-  ['fSabor', 'fCantidad'].forEach(id => {
+  document.getElementById('btnAdd').addEventListener('click', addLinea);
+  ['fSabor', 'fCant'].forEach(id =>
     document.getElementById(id).addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('btnAddLinea').click();
-      }
-    });
-  });
+      if (e.key === 'Enter') { e.preventDefault(); addLinea(); }
+    })
+  );
 
   document.getElementById('formPedido').addEventListener('submit', async function (e) {
     e.preventDefault();
     const cliente = document.getElementById('fCliente').value.trim();
     const fecha   = document.getElementById('fFecha').value;
 
-    if (!cliente)         { toast('Escribe el nombre del cliente', 'error'); return; }
-    if (lineas.length === 0) { toast('Agrega al menos un sabor', 'error'); return; }
-    if (!fecha)           { toast('Selecciona la fecha de entrega', 'error'); return; }
+    if (!cliente)          { toast('Escribe el nombre del cliente', 'err'); return; }
+    if (lineas.length < 1) { toast('Agrega al menos un sabor', 'err'); return; }
+    if (!fecha)            { toast('Elige la fecha de entrega', 'err'); return; }
 
-    const btn = document.getElementById('btnAgregar');
+    const btn = document.getElementById('btnGuardar');
     btn.disabled = true;
-    btn.textContent = `Guardando 0/${lineas.length}…`;
+    btn.textContent = 'Guardando…';
 
-    let guardados = 0;
-    const errores = [];
+    const rows = lineas.map(l => ({
+      cliente,
+      sabor:         l.sabor,
+      cantidad:      l.cantidad,
+      fecha_entrega: fecha,
+      estado:        'pendiente',
+    }));
 
-    // Una llamada JSONP por cada línea de sabor
-    for (let i = 0; i < lineas.length; i++) {
-      const { sabor, cantidad } = lineas[i];
-      try {
-        await jsonp({ action: 'agregarPedido', cliente, sabor, cantidad, fechaEntrega: fecha });
-        guardados++;
-        btn.textContent = `Guardando ${guardados}/${lineas.length}…`;
-      } catch (err) {
-        errores.push(sabor);
-      }
-    }
+    const { error } = await sb.from('pedidos').insert(rows);
 
     btn.disabled = false;
     btn.textContent = 'Guardar pedido';
 
-    if (errores.length === 0) {
-      toast(`${guardados} sabor${guardados !== 1 ? 'es' : ''} guardado${guardados !== 1 ? 's' : ''} ✓`, 'success');
-      this.reset();
-      document.getElementById('fFecha').value = manana();
-      lineas = [];
-      renderLineas();
-      panels.pedidos = null;
-      panels.produccion = null;
-      document.querySelector('[data-tab="pedidos"]').click();
-    } else {
-      toast(`Error guardando: ${errores.join(', ')}`, 'error');
-    }
+    if (error) { toast('Error: ' + error.message, 'err'); return; }
+
+    toast(`${rows.length} sabor${rows.length !== 1 ? 'es' : ''} guardado${rows.length !== 1 ? 's' : ''} ✓`, 'ok');
+    this.reset();
+    document.getElementById('fFecha').value = mananaISO();
+    lineas = [];
+    renderLineas();
+    _loaded.pedidos = false;
+    document.querySelector('[data-tab="pedidos"]').click();
   });
+
+  /* ════════════════════════════════════════
+     INVENTARIO
+  ════════════════════════════════════════ */
+  async function loadInventario() {
+    const el = document.getElementById('inv-content');
+    el.innerHTML = '<div class="loader"><div class="spinner"></div>Cargando inventario…</div>';
+    _loaded.inventario = false;
+
+    const { data, error } = await sb
+      .from('inventario')
+      .select('*')
+      .order('sabor', { ascending: true });
+
+    if (error) {
+      el.innerHTML = `<div class="empty"><div class="ico">⚠️</div><p>Error al cargar</p><small>${error.message}</small></div>`;
+      return;
+    }
+
+    _loaded.inventario = true;
+    renderInventario(el, data || []);
+  }
+
+  function renderInventario(el, items) {
+    if (items.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="ico">📦</div><p>Sin datos de inventario</p></div>`;
+      return;
+    }
+
+    el.innerHTML = `<p class="sec-label">${items.length} sabores</p>`;
+    const list = document.createElement('div');
+    list.className = 'inv-list';
+
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'inv-row';
+      const upd = item.actualizado_en ? `Actualizado ${fmtFecha(item.actualizado_en)}` : '';
+      row.innerHTML = `
+        <div class="inv-sabor-wrap">
+          <div class="inv-sabor-name">${item.sabor}</div>
+          ${upd ? `<div class="inv-updated">${upd}</div>` : ''}
+        </div>
+        <div class="inv-right">
+          <span class="inv-cant" title="Toca para editar">${item.cantidad ?? '—'}</span>
+          <span class="inv-unit">und</span>
+        </div>
+      `;
+
+      row.querySelector('.inv-cant').addEventListener('click', function () {
+        editarInventario(item, this);
+      });
+
+      list.appendChild(row);
+    });
+
+    el.appendChild(list);
+  }
+
+  function editarInventario(item, display) {
+    if (display.dataset.editing) return;
+    display.dataset.editing = '1';
+
+    const original = item.cantidad ?? 0;
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'inv-edit-input';
+    input.value = original;
+    input.min = 0; input.step = 1;
+    display.replaceWith(input);
+    input.focus(); input.select();
+
+    async function confirm() {
+      const val = Number(input.value);
+      // Sin cambio
+      if (isNaN(val) || val === original) {
+        input.replaceWith(display);
+        delete display.dataset.editing;
+        return;
+      }
+      input.disabled = true;
+      const { error } = await sb
+        .from('inventario')
+        .update({ cantidad: val, actualizado_en: new Date().toISOString() })
+        .eq('id', item.id);
+
+      if (error) {
+        toast('Error al guardar', 'err');
+        input.replaceWith(display);
+        delete display.dataset.editing;
+        return;
+      }
+      item.cantidad = val;
+      display.textContent = val;
+      input.replaceWith(display);
+      delete display.dataset.editing;
+      toast('Inventario actualizado ✓', 'ok');
+      // Recargar para actualizar la fecha
+      _loaded.inventario = false;
+      loadInventario();
+    }
+
+    input.addEventListener('blur', confirm);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter')  { e.preventDefault(); input.blur(); }
+      if (e.key === 'Escape') { input.value = original; input.blur(); }
+    });
+  }
 
   /* ── REFRESH ── */
   document.getElementById('btnRefresh').addEventListener('click', () => {
-    panels.pedidos = null;
-    panels.produccion = null;
-    const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
-    if (activeTab === 'pedidos') loadPedidos();
-    else if (activeTab === 'produccion') loadProduccion();
+    _loaded.pedidos = false;
+    _loaded.inventario = false;
+    const active = document.querySelector('.tab-btn.active')?.dataset.tab;
+    if (active === 'pedidos')    loadPedidos();
+    if (active === 'inventario') loadInventario();
   });
 
   /* ── INIT ── */
